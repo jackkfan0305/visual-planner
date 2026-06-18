@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# visual-planner launcher
+# Starts the local plan viewer server. `bin/` is added to the Bash PATH while the
+# plugin is enabled, so this is invokable simply as `visual-planner [args]`.
+#
+# Usage:
+#   visual-planner [--plan <slug>] [--port <n>] [--root <dir>] [--no-open]
+#
+# CLAUDE_PLUGIN_ROOT is set by Claude Code to this plugin's root directory.
+# When run outside Claude Code, fall back to resolving relative to this script.
+set -euo pipefail
+
+if [[ -n "${CLAUDE_PLUGIN_ROOT:-}" ]]; then
+  ROOT="$CLAUDE_PLUGIN_ROOT"
+else
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+fi
+
+exec node "$ROOT/server/server.js" "$@"
