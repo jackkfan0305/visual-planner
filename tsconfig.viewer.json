@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "types": [],
+    "rootDir": "./src/viewer",
+    "outDir": "./viewer/js",
+    "noEmit": false
+  },
+  "include": ["src/viewer/**/*.ts"]
+}

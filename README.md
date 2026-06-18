@@ -137,6 +137,26 @@ The viewer server (`server/server.js`, launched by the `bin/visual-planner` wrap
 
 ---
 
+## Development
+
+The plugin is written in **TypeScript** (`strict` mode) under `src/`, and compiled to the
+JavaScript the runtime uses:
+
+- `src/server/*.ts` → `server/*.js` (CommonJS, run by Node)
+- `src/viewer/*.ts` → `viewer/js/*.js` (ES modules, loaded by the browser)
+
+The compiled output is committed so the plugin works on install with **no build step** for
+end users. TypeScript is a dev-only dependency — the runtime stays zero-dependency.
+
+```bash
+npm install        # dev dependencies (typescript, @types/node)
+npm run build      # compile src/ -> server/ and viewer/js/
+npm run typecheck  # strict type-check with no emit
+```
+
+When you change anything under `src/`, run `npm run build` and commit both the `.ts` source
+and the regenerated `.js` output.
+
 ## License
 
 MIT — see [LICENSE](./LICENSE).

@@ -1,0 +1,5 @@
+node_modules/
+*.tsbuildinfo
+
+# Local plan data created while dogfooding inside this repo
+/plans/
