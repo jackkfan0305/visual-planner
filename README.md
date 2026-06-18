@@ -149,10 +149,15 @@ The compiled output is committed so the plugin works on install with **no build 
 end users. TypeScript is a dev-only dependency — the runtime stays zero-dependency.
 
 ```bash
-npm install        # dev dependencies (typescript, @types/node)
+npm install        # dev-only deps (typescript, @types/node, marked types)
 npm run build      # compile src/ -> server/ and viewer/js/
 npm run typecheck  # strict type-check with no emit
 ```
+
+The viewer is checked against `marked`'s official token types via a type-only import
+(erased at compile time), and the `marked` runtime is still loaded as a global `<script>`,
+so no bundler or runtime dependency is introduced. `viewer/vendor/marked.min.js` is the only
+third-party file — everything else under `server/` and `viewer/js/` is generated from `src/`.
 
 When you change anything under `src/`, run `npm run build` and commit both the `.ts` source
 and the regenerated `.js` output.

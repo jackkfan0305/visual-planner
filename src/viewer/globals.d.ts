@@ -1,38 +1,18 @@
 // Ambient types for the `marked` UMD global loaded via <script> in index.html.
-// We only declare the subset of the token shape the renderer consumes.
+// We use marked's own published types (type-only import, fully erased at compile
+// time — no runtime dependency is added) and only expose the synchronous subset
+// of the API the viewer actually calls.
 
-export {};
+import type { TokensList } from "marked";
 
 declare global {
-  interface MarkedListItem {
-    text: string;
-    task?: boolean;
-    checked?: boolean;
-  }
-
-  interface MarkedTableCell {
-    text: string;
-  }
-
-  interface MarkedToken {
-    type: string;
-    raw?: string;
-    text?: string;
-    depth?: number;
-    lang?: string;
-    ordered?: boolean;
-    items?: MarkedListItem[];
-    header?: MarkedTableCell[];
-    rows?: MarkedTableCell[][];
-  }
-
-  interface MarkedStatic {
-    lexer(src: string): MarkedToken[];
-    parse(src: string): string;
-    parseInline(src: string): string;
-  }
-
   interface Window {
-    marked: MarkedStatic;
+    marked: {
+      lexer(src: string): TokensList;
+      parse(src: string): string;
+      parseInline(src: string): string;
+    };
   }
 }
+
+export {};

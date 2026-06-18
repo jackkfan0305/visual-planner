@@ -2,13 +2,20 @@
 // Each top-level `## ` heading becomes a section card; the body primitives
 // (callouts, flow steps, file trees, code blocks, tables, tasks) are mapped to
 // the styled components from Plan Review.dc.html.
+//
+// Tokens come from marked's official types (imported type-only — erased at
+// compile time), so the renderer is checked against the real parser shapes.
 
 import { el, escapeHtml, clear, type Child } from "./dom.js";
 import { highlight } from "./highlight.js";
+import type { Token, Tokens } from "marked";
 
-const marked: MarkedStatic = window.marked;
+const marked = window.marked;
 
-const inline = (text: string | undefined): string => marked.parseInline(text ?? "");
+const inline = (text: string): string => marked.parseInline(text);
+
+const isHeading = (t: Token, depth?: number): t is Tokens.Heading =>
+  t.type === "heading" && (depth === undefined || t.depth === depth);
 
 interface Alert {
   cls: "note" | "warn";
@@ -38,9 +45,8 @@ function splitHeading(text: string, fallbackIndex: number): { num: string; title
   return { num: String(fallbackIndex).padStart(2, "0"), title: text.trim() };
 }
 
-function isAlert(blockquote: MarkedToken): Alert | null {
-  const text = blockquote.text ?? "";
-  const m = text.match(/^\s*\[!(\w+)\]\s*([^\n]*)\n?([\s\S]*)$/);
+function isAlert(blockquote: Tokens.Blockquote): Alert | null {
+  const m = blockquote.text.match(/^\s*\[!(\w+)\]\s*([^\n]*)\n?([\s\S]*)$/);
   if (!m) return null;
   const kind = m[1].toUpperCase();
   const cls: "note" | "warn" =
@@ -58,12 +64,11 @@ function renderCallout(alert: Alert): HTMLElement {
   ]);
 }
 
-function renderFlow(items: MarkedListItem[]): HTMLElement {
+function renderFlow(items: Tokens.ListItem[]): HTMLElement {
   const flow = el("div", { class: "flow" });
   items.forEach((item) => {
-    const raw = item.text ?? "";
-    const m = raw.match(/^\*\*(.+?)\*\*\s*[—\-–:]?\s*([\s\S]*)$/);
-    const title = m ? m[1] : raw;
+    const m = item.text.match(/^\*\*(.+?)\*\*\s*[—\-–:]?\s*([\s\S]*)$/);
+    const title = m ? m[1] : item.text;
     const rest = m ? m[2] : "";
     flow.append(
       el("div", { class: "flow-step" }, [
@@ -100,14 +105,13 @@ function renderTree(code: string): HTMLElement {
   return el("pre", { class: "tree", html });
 }
 
-function renderCode(token: MarkedToken): HTMLElement {
+function renderCode(token: Tokens.Code): HTMLElement {
   const info = (token.lang ?? "").trim();
   const sp = info.indexOf(" ");
   const lang = sp === -1 ? info : info.slice(0, sp);
   const file = sp === -1 ? "" : info.slice(sp + 1).trim();
-  const code = token.text ?? "";
 
-  if (lang === "tree") return renderTree(code);
+  if (lang === "tree") return renderTree(token.text);
 
   const block = el("div", { class: "code-block" });
   if (file || lang) {
@@ -118,18 +122,18 @@ function renderCode(token: MarkedToken): HTMLElement {
       ])
     );
   }
-  block.append(el("pre", {}, [el("code", { html: highlight(code) })]));
+  block.append(el("pre", {}, [el("code", { html: highlight(token.text) })]));
   return block;
 }
 
-function renderTable(token: MarkedToken): HTMLElement {
+function renderTable(token: Tokens.Table): HTMLElement {
   const wrap = el("div", { class: "card-table-wrap" });
   const table = el("table", { class: "card-table" });
   const htr = el("tr");
-  (token.header ?? []).forEach((cell) => htr.append(el("th", { html: inline(cell.text) })));
+  token.header.forEach((cell) => htr.append(el("th", { html: inline(cell.text) })));
   const thead = el("thead", {}, [htr]);
   const tbody = el("tbody");
-  (token.rows ?? []).forEach((row) => {
+  token.rows.forEach((row) => {
     const tr = el("tr");
     row.forEach((cell, i) => {
       let text = cell.text;
@@ -149,10 +153,10 @@ function renderTable(token: MarkedToken): HTMLElement {
   return wrap;
 }
 
-function renderTasks(items: MarkedListItem[]): HTMLElement {
+function renderTasks(items: Tokens.ListItem[]): HTMLElement {
   const ul = el("ul", { class: "tasks" });
   items.forEach((item) => {
-    let text = item.text ?? "";
+    let text = item.text;
     let time = "";
     const tm = text.match(/`?(~?\s*\d+\s*(?:m|min|h|hr|hrs)?)`?\s*$/i);
     if (tm && /[\dmh]/i.test(tm[1])) {
@@ -172,24 +176,29 @@ function renderTasks(items: MarkedListItem[]): HTMLElement {
   return ul;
 }
 
-function renderBodyToken(token: MarkedToken, sectionLabel: string): Node | null {
+// marked's `Token` union includes a permissive `Tokens.Generic` member that is
+// assignable to every other member, so `switch (token.type)` cannot fully narrow
+// on its own. We assert the concrete `Tokens.X` shape inside each checked case.
+function renderBodyToken(token: Token, sectionLabel: string): Node | null {
   switch (token.type) {
     case "paragraph":
-      return el("p", { html: inline(token.text) });
+      return el("p", { html: inline((token as Tokens.Paragraph).text) });
     case "blockquote": {
-      const alert = isAlert(token);
+      const bq = token as Tokens.Blockquote;
+      const alert = isAlert(bq);
       if (alert) return renderCallout(alert);
-      return el("blockquote", { html: marked.parse(token.text ?? "") });
+      return el("blockquote", { html: marked.parse(bq.text) });
     }
     case "code":
-      return renderCode(token);
+      return renderCode(token as Tokens.Code);
     case "table":
-      return renderTable(token);
+      return renderTable(token as Tokens.Table);
     case "list": {
-      const items = token.items ?? [];
+      const list = token as Tokens.List;
+      const items = list.items;
       if (items.some((it) => it.task)) return renderTasks(items);
-      if (sectionLabel === "ARCHITECTURE" && token.ordered) return renderFlow(items);
-      const ulol = el(token.ordered ? "ol" : "ul");
+      if (sectionLabel === "ARCHITECTURE" && list.ordered) return renderFlow(items);
+      const ulol = el(list.ordered ? "ol" : "ul");
       items.forEach((it) => ulol.append(el("li", { html: inline(it.text) })));
       return ulol;
     }
@@ -197,14 +206,14 @@ function renderBodyToken(token: MarkedToken, sectionLabel: string): Node | null 
     case "html":
       return null;
     default:
-      return el("div", { html: marked.parse(token.raw ?? "") });
+      return el("div", { html: marked.parse(token.raw) });
   }
 }
 
 /** Detect a meta blockquote like "repo `x` · complexity `Medium` · ...". */
-function renderMeta(token: MarkedToken): HTMLElement | null {
+function renderMeta(token: Token): HTMLElement | null {
   if (token.type !== "blockquote") return null;
-  const text = (token.text ?? "").trim();
+  const text = (token as Tokens.Blockquote).text.trim();
   if (!text.includes("·") && !/`/.test(text)) return null;
   if (/^\[!/.test(text)) return null;
   const chips: Child[] = text.split("·").map((part) => {
@@ -225,13 +234,14 @@ export function renderPlan(container: HTMLElement, markdown: string): void {
   frag.append(el("div", { class: "plan-eyebrow", text: "IMPLEMENTATION PLAN" }));
 
   let i = 0;
-  while (i < tokens.length && !(tokens[i].type === "heading" && tokens[i].depth === 1)) i++;
-  if (i < tokens.length) {
-    frag.append(el("h1", { class: "plan-title", html: inline(tokens[i].text) }));
+  while (i < tokens.length && !isHeading(tokens[i], 1)) i++;
+  const titleTok = tokens[i];
+  if (titleTok && isHeading(titleTok)) {
+    frag.append(el("h1", { class: "plan-title", html: inline(titleTok.text) }));
     i++;
   }
 
-  while (i < tokens.length && !(tokens[i].type === "heading" && tokens[i].depth === 2)) {
+  while (i < tokens.length && !isHeading(tokens[i], 2)) {
     const t = tokens[i];
     const meta = renderMeta(t);
     if (meta) frag.append(meta);
@@ -239,7 +249,7 @@ export function renderPlan(container: HTMLElement, markdown: string): void {
       frag.append(
         el("div", { class: "draft-notice" }, [
           el("span", { class: "ico", text: "i" }),
-          el("div", {}, [el("div", { class: "txt", html: inline(t.text) })]),
+          el("div", {}, [el("div", { class: "txt", html: inline((t as Tokens.Paragraph).text) })]),
         ])
       );
     }
@@ -250,13 +260,13 @@ export function renderPlan(container: HTMLElement, markdown: string): void {
   let cardIndex = 0;
   while (i < tokens.length) {
     const head = tokens[i];
-    if (head.type === "heading" && head.depth === 2) {
+    if (isHeading(head, 2)) {
       cardIndex++;
-      const { num, title } = splitHeading(head.text ?? "", cardIndex);
+      const { num, title } = splitHeading(head.text, cardIndex);
       const label = labelFor(title);
       const body = el("div", { class: "card-body" });
       i++;
-      while (i < tokens.length && !(tokens[i].type === "heading" && tokens[i].depth === 2)) {
+      while (i < tokens.length && !isHeading(tokens[i], 2)) {
         const node = renderBodyToken(tokens[i], label);
         if (node) body.append(node);
         i++;
