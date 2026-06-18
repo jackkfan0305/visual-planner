@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Visual Planner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles/tokens.css" />
+  <link rel="stylesheet" href="./styles/layout.css" />
+  <link rel="stylesheet" href="./styles/plan.css" />
+  <link rel="stylesheet" href="./styles/comments.css" />
+  <link rel="stylesheet" href="./styles/diff.css" />
+  <script src="./vendor/marked.min.js"></script>
+</head>
+<body>
+  <div class="app" id="app">
+
+    <header class="hdr" data-cc-ui>
+      <div class="hdr-left">
+        <div class="logo">›</div>
+        <nav class="crumb" aria-label="Plan">
+          <span class="crumb-root">Plans</span>
+          <span class="crumb-sep">/</span>
+          <span class="crumb-slug" id="crumb-slug">…</span>
+        </nav>
+        <button class="rev-pill" id="rev-pill" type="button" aria-haspopup="true">
+          <span class="rev-dot">●</span> <span id="rev-pill-label">rev 1</span> <span class="rev-caret">▾</span>
+        </button>
+      </div>
+
+      <div class="hdr-spacer"></div>
+
+      <div class="status-pill" id="status-pill">
+        <span class="status-dot" id="status-dot"></span>
+        <span id="status-text">Ready for review</span>
+      </div>
+
+      <button class="btn-accent" id="send-feedback" type="button" disabled>
+        Send feedback
+        <span class="badge" id="open-count">0</span>
+      </button>
+    </header>
+
+    <div class="body">
+      <article class="plan-scroll cc-scroll" id="plan-scroll">
+        <div class="plan-col" id="plan-col">
+          <div class="empty-plan" id="empty-plan" hidden>
+            <div class="empty-plan-icon">›</div>
+            <div class="empty-plan-title">No plan loaded</div>
+            <div class="empty-plan-sub" id="empty-plan-sub">
+              Generate one with <code>/visual-planner:plan</code> then open it here.
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <aside class="comments" data-cc-ui>
+        <div class="comments-hdr">
+          <span class="comments-title">Comments</span>
+          <span class="comments-count" id="comments-count">0</span>
+          <button class="filter-btn" id="filter-btn" type="button">All</button>
+        </div>
+        <div class="comments-list cc-scroll" id="comment-list"></div>
+        <div class="comments-foot">
+          Comments become a single prompt you paste back into Claude Code to produce the next revision.
+        </div>
+      </aside>
+    </div>
+
+  </div>
+
+  <!-- overlay roots populated by JS -->
+  <div id="overlay-root"></div>
+
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+/* Design tokens — ported from Plan Review.dc.html palette. */
+:root {
+  --bg: #131313;
+  --surface: #1e1e1e;
+  --surface-2: #191919;
+  --surface-3: #242424;
+  --surface-hover: #232323;
+  --border: #2c2c2c;
+  --border-2: #313131;
+  --border-strong: #4a4a4a;
+  --border-hover: #5a5a5a;
+
+  --text: #e7e7e5;
+  --text-bright: #f1f3f4;
+  --text-dim: #c9c9c9;
+  --text-soft: #cbcbcb;
+  --text-mut: #8c8c8c;
+  --text-faint: #7c7c7c;
+  --text-faintest: #545454;
+  --text-disabled: #6f6f6f;
+
+  --accent: #6d8196;
+  --accent-soft: rgba(109, 129, 150, 0.16);
+  --accent-border: rgba(109, 129, 150, 0.34);
+  --accent-tint: rgba(109, 129, 150, 0.12);
+
+  --cream: #ffffe3;
+  --cream-soft: rgba(255, 255, 227, 0.14);
+  --cream-border: rgba(255, 255, 227, 0.3);
+
+  --danger: #ff7a7a;
+  --code-bg: #0e0e0e;
+
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 15px;
+
+  --font-sans: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+}
+
+body {
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: rgba(109, 129, 150, 0.32);
+}
+
+/* CSS Custom Highlight API styles for commented passages. */
+::highlight(cc-comment) {
+  background: rgba(255, 255, 227, 0.18);
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 255, 227, 0.7);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+::highlight(cc-active) {
+  background: rgba(255, 255, 227, 0.4);
+}
+
+@keyframes ccpop {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes ccup {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%);
+  }
+}
+
+/* Scrollbars */
+.cc-scroll::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+.cc-scroll::-webkit-scrollbar-thumb {
+  background: #343434;
+  border-radius: 10px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+.cc-scroll::-webkit-scrollbar-thumb:hover {
+  background: #474747;
+  background-clip: padding-box;
+}
+.cc-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}

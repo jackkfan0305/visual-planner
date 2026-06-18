@@ -1,0 +1,471 @@
+/* Comment cards, selection bubble, composer, copy modal, toast, revision menu. */
+
+/* ---- Comment cards ---- */
+.comment {
+  background: var(--surface);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius);
+  padding: 13px 14px;
+  cursor: pointer;
+  transition: border-color 0.14s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+.comment:hover {
+  border-color: var(--border-hover);
+}
+.comment.active {
+  border-color: var(--border-hover);
+}
+.comment.resolved {
+  opacity: 0.5;
+}
+.comment-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 9px;
+}
+.comment-section {
+  font: 600 9px var(--font-mono);
+  letter-spacing: 0.05em;
+  color: #f4f1cf;
+  background: var(--cream-soft);
+  border: 1px solid var(--cream-border);
+  border-radius: 999px;
+  padding: 3px 9px;
+  text-transform: uppercase;
+}
+.comment-resolved-tag {
+  font: 600 9px var(--font-mono);
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px solid rgba(109, 129, 150, 0.4);
+  border-radius: 999px;
+  padding: 3px 8px;
+}
+.comment-num {
+  margin-left: auto;
+  font: 600 11px var(--font-mono);
+  color: var(--text-faint);
+}
+.comment-quote {
+  border-left: 2px solid rgba(255, 255, 227, 0.6);
+  padding-left: 10px;
+  font: 400 12px/1.5 var(--font-mono);
+  color: var(--text-soft);
+  margin-bottom: 10px;
+  word-break: break-word;
+}
+.comment-body {
+  font: 400 13.5px/1.58 var(--font-sans);
+  color: #d6d6d4;
+  text-wrap: pretty;
+  white-space: pre-wrap;
+}
+.comment-actions {
+  display: flex;
+  gap: 7px;
+  margin-top: 12px;
+}
+.comment-actions button {
+  font: 600 10.5px var(--font-mono);
+  border-radius: 7px;
+  padding: 5px 11px;
+  cursor: pointer;
+}
+.btn-resolve {
+  color: var(--text-dim);
+  background: #272727;
+  border: 1px solid var(--border-strong);
+  transition: border-color 0.14s, color 0.14s;
+}
+.btn-resolve:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.btn-delete {
+  color: #9a9a9a;
+  background: transparent;
+  border: 1px solid transparent;
+  transition: color 0.14s;
+}
+.btn-delete:hover {
+  color: var(--danger);
+}
+
+/* empty comments state */
+.comments-empty {
+  margin-top: 30px;
+  text-align: center;
+  padding: 0 22px;
+}
+.comments-empty .ico {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: var(--surface-3);
+  border: 1px solid var(--border-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 14px;
+  font: 600 16px var(--font-mono);
+  color: var(--text-faint);
+}
+.comments-empty .ttl {
+  font: 600 13.5px var(--font-sans);
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+.comments-empty .sub {
+  font: 400 13px/1.6 var(--font-sans);
+  color: var(--text-mut);
+  text-wrap: pretty;
+}
+.comments-empty .sub mark {
+  background: rgba(255, 255, 227, 0.2);
+  color: #cfcaa8;
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 255, 227, 0.7);
+  text-underline-offset: 3px;
+}
+
+/* ---- Selection bubble ---- */
+.sel-bubble {
+  position: fixed;
+  z-index: 50;
+  transform: translate(-50%, -100%);
+  animation: ccup 0.12s ease;
+}
+.sel-bubble button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--accent);
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  border-radius: 9px;
+  padding: 8px 13px;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 10px 26px rgba(0, 0, 0, 0.5);
+  font: 600 12px var(--font-mono);
+  color: var(--cream);
+}
+.sel-bubble button:hover {
+  filter: brightness(1.06);
+}
+.sel-bubble .plus {
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* ---- Composer ---- */
+.composer {
+  position: fixed;
+  z-index: 60;
+  width: 308px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 13px;
+  box-shadow: 0 20px 54px rgba(0, 0, 0, 0.6);
+  padding: 14px;
+  animation: ccpop 0.14s ease;
+}
+.composer-quote {
+  border-left: 2px solid var(--cream);
+  padding-left: 10px;
+  font: 400 11.5px/1.45 var(--font-mono);
+  color: var(--text-soft);
+  max-height: 52px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.composer textarea {
+  width: 100%;
+  height: 78px;
+  resize: none;
+  background: var(--code-bg);
+  border: 1px solid var(--border-strong);
+  border-radius: 9px;
+  padding: 11px;
+  color: var(--text);
+  font: 400 13.5px/1.5 var(--font-sans);
+  outline: none;
+}
+.composer textarea:focus {
+  border-color: var(--accent);
+}
+.composer-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 11px;
+}
+.composer-actions button {
+  font: 600 12px var(--font-mono);
+  border-radius: var(--radius-sm);
+  padding: 8px 13px;
+  cursor: pointer;
+}
+.btn-ghost {
+  color: var(--text-dim);
+  background: #272727;
+  border: 1px solid var(--border-strong);
+  transition: border-color 0.14s, color 0.14s;
+}
+.btn-ghost:hover {
+  border-color: var(--border-hover);
+  color: var(--text);
+}
+.btn-add {
+  color: var(--cream);
+  background: var(--accent);
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  transition: filter 0.14s;
+}
+.btn-add:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+.btn-add:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* ---- Copy / send feedback modal ---- */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(4, 5, 7, 0.66);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 34px;
+  animation: ccpop 0.14s ease;
+}
+.modal {
+  width: min(780px, 100%);
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 34px 90px rgba(0, 0, 0, 0.6);
+}
+.modal-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 17px 20px;
+  flex: none;
+  border-bottom: 1px solid var(--border);
+}
+.modal-head .ttl {
+  font: 600 16px var(--font-sans);
+  color: #ededeb;
+}
+.modal-head .sub {
+  font: 400 12.5px var(--font-sans);
+  color: var(--text-soft);
+  margin-top: 3px;
+}
+.modal-close {
+  margin-left: auto;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  background: #272727;
+  border: 1px solid var(--border-strong);
+  color: var(--text-soft);
+  cursor: pointer;
+  font: 400 16px var(--font-mono);
+  line-height: 1;
+  transition: color 0.14s, border-color 0.14s;
+}
+.modal-close:hover {
+  color: var(--text);
+  border-color: var(--border-hover);
+}
+.modal-pre {
+  flex: 1;
+  overflow: auto;
+  margin: 0;
+  padding: 18px 20px;
+  background: var(--code-bg);
+  font: 400 12.5px/1.72 var(--font-mono);
+  color: var(--text-dim);
+  white-space: pre-wrap;
+  border-bottom: 1px solid var(--border);
+}
+.modal-foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 20px;
+  flex: none;
+}
+.modal-foot .note {
+  font: 400 12px var(--font-sans);
+  color: var(--text-mut);
+}
+.tone-toggle {
+  margin-left: auto;
+  display: flex;
+  gap: 4px;
+  background: var(--code-bg);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+}
+.tone-toggle button {
+  font: 600 11px var(--font-mono);
+  color: var(--text-mut);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+.tone-toggle button.on {
+  color: var(--cream);
+  background: var(--surface-3);
+}
+.btn-copy {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: var(--accent);
+  color: var(--cream);
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  border-radius: 9px;
+  padding: 10px 18px;
+  cursor: pointer;
+  font: 600 13px var(--font-mono);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  transition: filter 0.14s;
+}
+.btn-copy:hover {
+  filter: brightness(1.06);
+}
+
+/* ---- Toast ---- */
+.toast {
+  position: fixed;
+  z-index: 90;
+  left: 50%;
+  bottom: 30px;
+  transform: translateX(-50%);
+  background: var(--surface);
+  border: 1px solid rgba(109, 129, 150, 0.5);
+  border-radius: 10px;
+  padding: 11px 18px;
+  font: 600 12.5px var(--font-mono);
+  color: var(--accent);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5);
+  animation: ccup 0.16s ease;
+}
+
+/* ---- Revision menu ---- */
+.rev-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+}
+.rev-menu {
+  position: absolute;
+  top: 53px;
+  left: 200px;
+  z-index: 35;
+  width: 320px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+  animation: ccpop 0.14s ease;
+}
+.rev-menu-hdr {
+  padding: 12px 15px;
+  border-bottom: 1px solid var(--border);
+  font: 600 10px var(--font-mono);
+  letter-spacing: 0.14em;
+  color: var(--text-faint);
+}
+.rev-list {
+  display: flex;
+  flex-direction: column;
+  padding: 7px;
+  max-height: 320px;
+  overflow: auto;
+}
+.rev-item {
+  display: flex;
+  gap: 11px;
+  padding: 10px;
+  border-radius: 9px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  text-align: left;
+  width: 100%;
+}
+.rev-item:hover {
+  background: var(--surface-hover);
+}
+.rev-item.current {
+  background: var(--surface-3);
+}
+.rev-item .dot {
+  font: 700 12px var(--font-mono);
+  margin-top: 1px;
+  color: var(--text-faintest);
+}
+.rev-item.current .dot {
+  color: var(--accent);
+}
+.rev-item .name {
+  font: 600 13px var(--font-mono);
+  color: var(--text-dim);
+}
+.rev-item.current .name {
+  color: #ededeb;
+}
+.rev-item .desc {
+  font: 400 12px/1.5 var(--font-sans);
+  color: var(--text-faint);
+  margin-top: 3px;
+}
+.rev-menu-foot {
+  padding: 11px 15px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.rev-compare-btn {
+  font: 600 11px var(--font-mono);
+  color: var(--text-dim);
+  background: var(--surface-3);
+  border: 1px solid var(--border-strong);
+  border-radius: 7px;
+  padding: 6px 11px;
+  cursor: pointer;
+  transition: border-color 0.14s, color 0.14s;
+}
+.rev-compare-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.rev-compare-btn.on {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+.rev-menu-foot .hint {
+  font: 400 11px/1.4 var(--font-sans);
+  color: var(--text-faint);
+}

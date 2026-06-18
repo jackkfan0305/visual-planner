@@ -1,0 +1,81 @@
+/* Unified diff view between two revisions. */
+
+.diff-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--accent-tint);
+  border: 1px solid rgba(109, 129, 150, 0.32);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  margin-bottom: 18px;
+  font: 500 12.5px var(--font-mono);
+  color: #a7b7c6;
+}
+.diff-banner b {
+  color: #dbe4ec;
+}
+.diff-banner .exit {
+  margin-left: auto;
+  font: 600 11px var(--font-mono);
+  color: var(--text-dim);
+  background: var(--surface-3);
+  border: 1px solid var(--border-strong);
+  border-radius: 7px;
+  padding: 5px 11px;
+  cursor: pointer;
+}
+.diff-banner .exit:hover {
+  border-color: var(--border-hover);
+  color: var(--text);
+}
+
+.diff-pre {
+  margin: 0;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 0;
+  overflow: auto;
+  font: 400 12.5px/1.7 var(--font-mono);
+}
+.diff-line {
+  display: block;
+  padding: 0 18px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.diff-line .gutter {
+  display: inline-block;
+  width: 16px;
+  color: var(--text-faintest);
+  user-select: none;
+}
+.diff-add {
+  background: rgba(126, 231, 135, 0.1);
+  color: #a8e6b0;
+}
+.diff-add .gutter {
+  color: #7ee787;
+}
+.diff-del {
+  background: rgba(255, 122, 122, 0.1);
+  color: #e6a8a8;
+}
+.diff-del .gutter {
+  color: var(--danger);
+}
+.diff-ctx {
+  color: var(--text-faint);
+}
+.diff-hunk {
+  color: var(--accent);
+  background: rgba(109, 129, 150, 0.08);
+  margin: 6px 0;
+}
+.diff-empty {
+  padding: 24px 18px;
+  text-align: center;
+  color: var(--text-mut);
+  font: 400 13px var(--font-sans);
+}
