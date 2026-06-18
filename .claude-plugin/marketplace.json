@@ -1,5 +1,6 @@
 {
   "name": "visual-planner",
+  "description": "Visual Planner — browser-reviewable, iterable planning for Claude Code.",
   "owner": {
     "name": "Jack Fan",
     "url": "https://github.com/jackkfan0305"
