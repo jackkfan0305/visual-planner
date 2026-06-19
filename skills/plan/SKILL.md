@@ -51,10 +51,23 @@ browser viewer and iterate on.
    }
    ```
 
-6. **Tell the user** the plan is ready and how to review it:
-   > Run `/visual-planner:plan-view <slug>` to open it in the browser, highlight any text
-   > to leave comments, then click **Send feedback** to get a prompt you paste back here
-   > for the next revision.
+6. **Open it in the browser automatically.** Don't make the user run a separate command —
+   start the viewer in the background from the current project directory so the plan shows up
+   immediately. Use the launcher (on PATH while the plugin is enabled), falling back to node:
+
+   ```bash
+   visual-planner --plan "<slug>" || node "${CLAUDE_PLUGIN_ROOT}/server/server.js" --plan "<slug>"
+   ```
+
+   Run it as a **background process** so the session stays interactive. The server prints a
+   line like `[visual-planner] open: http://localhost:4517/?plan=<slug>` and opens the browser
+   automatically (the port auto-increments if busy).
+
+7. **Report the link.** Copy the printed URL into your reply so the user always has it, even if
+   the browser didn't open on its own:
+   > Your plan is ready and open in the browser: **http://localhost:<port>/?plan=<slug>**
+   > Highlight any text to leave comments, then click **Send feedback** to get a prompt you
+   > paste back here for the next revision. (Reopen anytime with `/visual-planner:plan-view <slug>`.)
 
 ## Notes
 

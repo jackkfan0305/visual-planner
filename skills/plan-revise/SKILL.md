@@ -36,9 +36,20 @@ or if the user just pasted feedback that names the plan file).
 5. **Update the manifest** `plans/<slug>/plan.json`: bump `latest` to `N+1` and append a
    revision entry with a one-line `summary` of the changes and the current `createdAt`.
 
-6. **Tell the user** the new revision is ready. If the viewer is still open it will pick up
-   the new revision automatically (it polls); they can switch to it and use **Compare with
-   previous** to see the diff.
+6. **Make sure it's open in the browser.** If the viewer is already running it picks up the new
+   revision automatically (it polls). If you're not sure it's running, start it in the
+   background so the user sees the result without running a separate command:
+
+   ```bash
+   visual-planner --plan "<slug>" || node "${CLAUDE_PLUGIN_ROOT}/server/server.js" --plan "<slug>"
+   ```
+
+   (Launching again when a server is already up is harmless — the port auto-increments if
+   busy.) Run it as a background process.
+
+7. **Report the link.** Always include the URL in your reply:
+   > Revision N+1 is ready and open in the browser: **http://localhost:<port>/?plan=<slug>**
+   > Switch to the latest revision and use **Compare with previous** to see the diff.
 
 ## Notes
 
