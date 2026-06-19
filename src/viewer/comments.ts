@@ -277,6 +277,24 @@ function deleteComment(id: string): void {
   delete ranges[id];
   store.comments = store.comments.filter((c) => c.id !== id);
   if (store.activeId === id) store.activeId = null;
+  if (editingId === id) editingId = null;
+  changed();
+}
+
+let editingId: string | null = null;
+function startEdit(id: string): void {
+  editingId = id;
+  renderSidebar();
+}
+function cancelEdit(): void {
+  editingId = null;
+  renderSidebar();
+}
+function saveEdit(id: string, value: string): void {
+  const body = value.trim();
+  if (!body) return;
+  store.comments = store.comments.map((c) => (c.id === id ? { ...c, body } : c));
+  editingId = null;
   changed();
 }
 
@@ -310,15 +328,48 @@ function renderSidebar(): void {
     const idx = all.indexOf(c) + 1;
     const resolved = c.status === "resolved";
     const quoteShort = c.quote.length > 96 ? c.quote.slice(0, 96) + "…" : c.quote;
-    const children: Child[] = [
-      el("div", { class: "comment-top" }, [
-        el("span", { class: "comment-section", text: c.section }),
-        resolved ? el("span", { class: "comment-resolved-tag", text: "RESOLVED" }) : null,
-        el("span", { class: "comment-num", text: "#" + idx }),
-      ]),
-      el("div", { class: "comment-quote", text: quoteShort }),
-      el("div", { class: "comment-body", text: c.body }),
-      el("div", { class: "comment-actions" }, [
+    const editing = c.id === editingId;
+    let bodyNode: Child;
+    let actionsNode: Child;
+    if (editing) {
+      const ta = el("textarea", {
+        class: "comment-edit",
+        style:
+          "width:100%;min-height:64px;resize:vertical;background:var(--code-bg);border:1px solid var(--border-strong);border-radius:8px;padding:9px;color:var(--text);font:400 13px/1.5 var(--font-sans);outline:none;",
+      }) as HTMLTextAreaElement;
+      ta.value = c.body;
+      ta.addEventListener("click", (e) => e.stopPropagation());
+      setTimeout(() => ta.focus(), 0);
+      bodyNode = ta;
+      actionsNode = el("div", { class: "comment-actions" }, [
+        el("button", {
+          class: "btn-resolve",
+          text: "Save",
+          onClick: (e: Event) => {
+            e.stopPropagation();
+            saveEdit(c.id, ta.value);
+          },
+        }),
+        el("button", {
+          class: "btn-ghost",
+          text: "Cancel",
+          onClick: (e: Event) => {
+            e.stopPropagation();
+            cancelEdit();
+          },
+        }),
+      ]);
+    } else {
+      bodyNode = el("div", { class: "comment-body", text: c.body });
+      actionsNode = el("div", { class: "comment-actions" }, [
+        el("button", {
+          class: "btn-resolve",
+          text: "Edit",
+          onClick: (e: Event) => {
+            e.stopPropagation();
+            startEdit(c.id);
+          },
+        }),
         el("button", {
           class: "btn-resolve",
           text: resolved ? "Reopen" : "Resolve",
@@ -335,10 +386,20 @@ function renderSidebar(): void {
             deleteComment(c.id);
           },
         }),
+      ]);
+    }
+    const children: Child[] = [
+      el("div", { class: "comment-top" }, [
+        el("span", { class: "comment-section", text: c.section }),
+        resolved ? el("span", { class: "comment-resolved-tag", text: "RESOLVED" }) : null,
+        el("span", { class: "comment-num", text: "#" + idx }),
       ]),
+      el("div", { class: "comment-quote", text: quoteShort }),
+      bodyNode,
+      actionsNode,
     ];
     const cls = "comment" + (resolved ? " resolved" : "") + (c.id === store.activeId ? " active" : "");
-    list.append(el("div", { class: cls, onClick: () => jump(c.id) }, children));
+    list.append(el("div", { class: cls, onClick: editing ? null : () => jump(c.id) }, children));
   });
 
   emit("comments:changed");
