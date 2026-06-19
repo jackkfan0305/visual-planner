@@ -59,19 +59,19 @@ body {
 }
 
 ::selection {
-  background: rgba(109, 129, 150, 0.32);
+  background: rgba(255, 214, 10, 0.45);
 }
 
-/* CSS Custom Highlight API styles for commented passages. */
+/* CSS Custom Highlight API styles for commented passages (highlighter yellow). */
 ::highlight(cc-comment) {
-  background: rgba(255, 255, 227, 0.18);
+  background: rgba(255, 214, 10, 0.38);
   text-decoration: underline;
-  text-decoration-color: rgba(255, 255, 227, 0.7);
+  text-decoration-color: rgba(255, 214, 10, 0.9);
   text-decoration-thickness: 1.5px;
   text-underline-offset: 3px;
 }
 ::highlight(cc-active) {
-  background: rgba(255, 255, 227, 0.4);
+  background: rgba(255, 214, 10, 0.7);
 }
 
 @keyframes ccpop {

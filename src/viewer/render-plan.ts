@@ -6,7 +6,7 @@
 // Tokens come from marked's official types (imported type-only — erased at
 // compile time), so the renderer is checked against the real parser shapes.
 
-import { el, escapeHtml, clear, type Child } from "./dom.js";
+import { el, escapeHtml, clear } from "./dom.js";
 import { highlight } from "./highlight.js";
 import type { Token, Tokens } from "marked";
 
@@ -210,21 +210,6 @@ function renderBodyToken(token: Token, sectionLabel: string): Node | null {
   }
 }
 
-/** Detect a meta blockquote like "repo `x` · complexity `Medium` · ...". */
-function renderMeta(token: Token): HTMLElement | null {
-  if (token.type !== "blockquote") return null;
-  const text = (token as Tokens.Blockquote).text.trim();
-  if (!text.includes("·") && !/`/.test(text)) return null;
-  if (/^\[!/.test(text)) return null;
-  const chips: Child[] = text.split("·").map((part) => {
-    const m = part.trim().match(/^([\w\s]+?)\s*`?([^`]+)`?$/);
-    const label = m ? m[1].trim() : "";
-    const value = m ? m[2].trim() : part.trim();
-    return el("span", { class: "chip" }, [label ? el("b", { text: label }) : null, value]);
-  });
-  return el("div", { class: "plan-meta" }, chips);
-}
-
 /** Render markdown into `container`. */
 export function renderPlan(container: HTMLElement, markdown: string): void {
   clear(container);
@@ -243,9 +228,7 @@ export function renderPlan(container: HTMLElement, markdown: string): void {
 
   while (i < tokens.length && !isHeading(tokens[i], 2)) {
     const t = tokens[i];
-    const meta = renderMeta(t);
-    if (meta) frag.append(meta);
-    else if (t.type === "paragraph") {
+    if (t.type === "paragraph") {
       frag.append(
         el("div", { class: "draft-notice" }, [
           el("span", { class: "ico", text: "i" }),

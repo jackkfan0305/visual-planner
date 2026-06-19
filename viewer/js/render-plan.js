@@ -197,23 +197,6 @@ function renderBodyToken(token, sectionLabel) {
             return el("div", { html: marked.parse(token.raw) });
     }
 }
-/** Detect a meta blockquote like "repo `x` · complexity `Medium` · ...". */
-function renderMeta(token) {
-    if (token.type !== "blockquote")
-        return null;
-    const text = token.text.trim();
-    if (!text.includes("·") && !/`/.test(text))
-        return null;
-    if (/^\[!/.test(text))
-        return null;
-    const chips = text.split("·").map((part) => {
-        const m = part.trim().match(/^([\w\s]+?)\s*`?([^`]+)`?$/);
-        const label = m ? m[1].trim() : "";
-        const value = m ? m[2].trim() : part.trim();
-        return el("span", { class: "chip" }, [label ? el("b", { text: label }) : null, value]);
-    });
-    return el("div", { class: "plan-meta" }, chips);
-}
 /** Render markdown into `container`. */
 export function renderPlan(container, markdown) {
     clear(container);
@@ -230,10 +213,7 @@ export function renderPlan(container, markdown) {
     }
     while (i < tokens.length && !isHeading(tokens[i], 2)) {
         const t = tokens[i];
-        const meta = renderMeta(t);
-        if (meta)
-            frag.append(meta);
-        else if (t.type === "paragraph") {
+        if (t.type === "paragraph") {
             frag.append(el("div", { class: "draft-notice" }, [
                 el("span", { class: "ico", text: "i" }),
                 el("div", {}, [el("div", { class: "txt", html: inline(t.text) })]),
