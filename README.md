@@ -7,7 +7,11 @@ Markdown file and you review it in a polished browser UI: highlight any passage,
 comment, and click **Send feedback** to get a ready-to-paste prompt that produces the next
 revision. Every revision is saved locally, and you can switch between them and see the diff.
 
-![Visual Planner viewer](./assets/screenshot.png)
+<img width="2482" height="1358" alt="image" src="https://github.com/user-attachments/assets/b1a7f902-2332-4f74-a672-b1b13e82448b" />
+<img width="2490" height="1353" alt="image" src="https://github.com/user-attachments/assets/4fd84084-353c-4f46-a92a-eaba9fe82df0" />
+
+
+
 
 ---
 
