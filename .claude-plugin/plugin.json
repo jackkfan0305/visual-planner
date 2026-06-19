@@ -1,7 +1,7 @@
 {
   "name": "visual-planner",
   "description": "Browser-reviewable, iterable planning for Claude Code. Generate a plan as a local markdown file, review it in a polished browser UI, leave comments, and iterate revision-by-revision with visual diffs.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": {
     "name": "Jack Fan"
   },
