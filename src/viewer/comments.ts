@@ -129,13 +129,15 @@ function handleSelection(): void {
 }
 
 function showBubble(): void {
+  const s = selState;
   closeBubble();
-  if (!selState) return;
+  if (!s) return;
+  selState = s;
   bubbleEl = el("div", { class: "sel-bubble" }, [
     el("button", { type: "button", onMousedown: openComposer }, [el("span", { class: "plus", text: "+" }), " Comment"]),
   ]);
-  bubbleEl.style.left = selState.bx + "px";
-  bubbleEl.style.top = selState.by + "px";
+  bubbleEl.style.left = s.bx + "px";
+  bubbleEl.style.top = s.by + "px";
   refs.overlayRoot.append(bubbleEl);
 }
 
