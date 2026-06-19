@@ -27,6 +27,11 @@
   - Task lists `- [ ] ...` render as checkboxes. Append a time estimate token like
     `~30m` at the end of a task to show a time chip.
 
+  Section layout is only a suggestion. The sections below (Overview, Approach, Architecture,
+  Affected files, Implementation, Security, Test plan, Tradeoffs, Tasks ...) are a starting
+  point — add, remove, reorder, or rename any of them to fit the work. Only keep the sections
+  that earn their place.
+
   Delete this comment block in real plans, or keep it — the viewer ignores HTML comments.
 -->
 
@@ -85,7 +90,28 @@ export function example() {
 | **Chosen option** `(chosen)` | The upside | The cost |
 | Alternative | Its upside | Why we passed |
 
-## 08 — Tasks
+## 08 — Test plan
+
+<How every feature above gets verified. Cover the layers that apply — unit, integration,
+end-to-end, and manual checks — and tie each test back to a feature so nothing ships
+unverified.>
+
+| Area | What to verify | How | Type |
+| --- | --- | --- | --- |
+| **<Feature / unit>** | The behavior or invariant that must hold | Test name, command, or steps | Unit |
+| **<Integration point>** | Components work together as specified | … | Integration |
+| **<Critical user flow>** | The end-to-end path a user takes | … | E2E |
+| **<Edge case / failure>** | Invalid input, limits, auth failure handled correctly | … | Manual |
+
+- [ ] Happy path verified for every feature in this plan
+- [ ] Edge cases & error handling verified (invalid input, empty/limit values, auth failures)
+- [ ] Regression: existing related behavior still works
+
+> [!NOTE] Definition of done
+> Every feature in this plan has at least one test here, and the suite is green before the
+> tasks below are checked off.
+
+## 09 — Tasks
 
 - [ ] First concrete step `~15m`
 - [ ] Second concrete step `~30m`

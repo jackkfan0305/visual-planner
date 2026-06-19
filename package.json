@@ -1,6 +1,6 @@
 {
   "name": "visual-planner",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "private": true,
   "description": "Browser-reviewable, iterable planning for Claude Code.",
   "license": "MIT",

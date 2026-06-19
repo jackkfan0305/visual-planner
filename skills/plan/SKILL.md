@@ -30,7 +30,12 @@ browser viewer and iterate on.
 
 4. **Write the plan** to `plans/<slug>/rev-001.md`. Make it genuinely detailed and specific
    to this codebase: Overview, Approach, Architecture, Affected files, Implementation
-   (with real code), Security (if relevant), Tradeoffs, and Tasks. Keep it scannable.
+   (with real code), Security (if relevant), a **Test plan**, Tradeoffs, and Tasks. Keep it
+   scannable. The **Test plan** goes right before Tasks and must be rigorous: lay out how every
+   feature in the plan is verified — unit, integration, end-to-end, and manual checks — tying
+   each test back to a feature so nothing ships unverified. Note that this section layout is
+   only a suggestion: add, remove, reorder, or rename sections to fit the work, and only keep
+   the ones that earn their place.
 
 5. **Write the manifest** `plans/<slug>/plan.json`:
    ```json
