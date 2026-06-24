@@ -6,20 +6,20 @@ disable-model-invocation: true
 
 # Open the plan viewer
 
-Launch the local viewer server (it serves the browser UI and reads the `plans/` folder)
+Launch the local viewer server (it serves the browser UI and reads the `.plans/` folder)
 and open the plan in the user's browser.
 
 Plan to open: **$ARGUMENTS** (a plan slug; may be empty).
 
 ## Steps
 
-1. **Resolve the slug.** If `$ARGUMENTS` is empty, list the directories under `plans/` and:
+1. **Resolve the slug.** If `$ARGUMENTS` is empty, list the directories under `.plans/` and:
    - if exactly one plan exists, use it;
    - if several exist, ask the user which slug to open (or open the picker by launching
      with no `--plan`).
 
 2. **Start the server in the background** from the current project directory so it can find
-   `plans/`. Use the launcher (on PATH while the plugin is enabled), falling back to node:
+   `.plans/`. Use the launcher (on PATH while the plugin is enabled), falling back to node:
 
    ```bash
    visual-planner --plan "<slug>" || node "${CLAUDE_PLUGIN_ROOT}/server/server.js" --plan "<slug>"

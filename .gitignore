@@ -3,3 +3,4 @@ node_modules/
 
 # Local plan data created while dogfooding inside this repo
 /plans/
+.plans/

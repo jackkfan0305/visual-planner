@@ -58,12 +58,17 @@ function updateHeader(): void {
 }
 
 function updateStatus(): void {
-  const open = openComments();
-  els.openCount.textContent = String(open.length);
-  els.sendBtn.disabled = open.length === 0;
-  if (open.length) {
+  const openCount = openComments().length;
+  const reorderCount = Object.keys(store.taskReorders).length;
+  const total = openCount + reorderCount;
+  els.openCount.textContent = String(total);
+  els.sendBtn.disabled = total === 0;
+  if (total) {
     els.statusDot.style.background = "#ffffe3";
-    els.statusText.textContent = `${open.length} comment${open.length > 1 ? "s" : ""} to send`;
+    const bits: string[] = [];
+    if (openCount) bits.push(`${openCount} comment${openCount > 1 ? "s" : ""}`);
+    if (reorderCount) bits.push(`${reorderCount} task reorder${reorderCount > 1 ? "s" : ""}`);
+    els.statusText.textContent = `${bits.join(" + ")} to send`;
   } else {
     els.statusDot.style.background = "#6d8196";
     els.statusText.textContent = "Ready for review";
@@ -142,6 +147,7 @@ async function showPicker(): Promise<void> {
 function wireHeader(): void {
   els.sendBtn.addEventListener("click", () => openCopyModal(els.overlayRoot, showToast));
   on("comments:changed", () => updateStatus());
+  on("tasks:reordered", () => updateStatus());
 }
 
 async function main(): Promise<void> {

@@ -3,10 +3,10 @@
 // self-contained header that tells Claude Code which files to write.
 
 import { el } from "./dom.js";
-import { store, openComments } from "./store.js";
+import { store, openComments, type TaskReorder } from "./store.js";
 
 function revFile(rev: number): string {
-  return `plans/${store.slug}/rev-${String(rev).padStart(3, "0")}.md`;
+  return `.plans/${store.slug}/rev-${String(rev).padStart(3, "0")}.md`;
 }
 
 function nextRev(): number {
@@ -14,44 +14,82 @@ function nextRev(): number {
 }
 
 /** The instruction header that makes the pasted prompt self-driving. */
-function header(openCount: number): string {
+function header(openCount: number, reorderCount: number): string {
   const cur = store.currentRev;
   const next = nextRev();
+  const parts: string[] = [];
+  if (openCount) parts.push(`left ${openCount} comment(s) on specific passages`);
+  if (reorderCount) parts.push(`reordered the tasks in ${reorderCount} section(s)`);
   return (
-    `I reviewed the implementation plan at \`${revFile(cur)}\` and left ${openCount} ` +
-    `comment(s) on specific passages. Please revise the plan to address every comment below.\n\n` +
+    `I reviewed the implementation plan at \`${revFile(cur)}\` and ${parts.join(" and ")}. ` +
+    `Please revise the plan to address everything below.\n\n` +
     `Save the revised plan as \`${revFile(next)}\` (do not overwrite the current revision), then ` +
-    `append the new revision to \`plans/${store.slug}/plan.json\` with a one-line "what changed" summary ` +
-    `(bump "latest" to ${next}).\n\n` +
-    `Each comment quotes the exact passage it refers to, followed by the change I want.\n\n`
+    `append the new revision to \`.plans/${store.slug}/plan.json\` with a one-line "what changed" summary ` +
+    `(bump "latest" to ${next}).\n\n`
   );
+}
+
+/** Reordered task lists captured from drag-and-drop, in store order. */
+function reorderBlocks(): TaskReorder[] {
+  return Object.values(store.taskReorders);
+}
+
+function reorderDetail(reorders: TaskReorder[]): string {
+  let s = "";
+  reorders.forEach((r, i) => {
+    s += `── Task reorder ${i + 1}  ·  [${r.section}] ──\n`;
+    s += `Rewrite the task list in this section so the items appear in exactly this order:\n`;
+    r.current.forEach((t, j) => {
+      s += `${j + 1}. ${t}\n`;
+    });
+    s += `\n`;
+  });
+  return s;
 }
 
 export function buildFeedback(): string {
   const open = openComments();
-  if (!open.length) return "";
+  const reorders = reorderBlocks();
+  if (!open.length && !reorders.length) return "";
 
   if (store.tone === "concise") {
-    let s = `Revise \`${revFile(store.currentRev)}\` into \`${revFile(nextRev())}\` to address these comments:\n\n`;
-    open.forEach((c, i) => {
-      const q = c.quote.length > 90 ? c.quote.slice(0, 90) + "…" : c.quote;
-      s += `${i + 1}. [${c.section}] "${q}"\n   → ${c.body}\n\n`;
-    });
+    let s = `Revise \`${revFile(store.currentRev)}\` into \`${revFile(nextRev())}\`:\n\n`;
+    if (open.length) {
+      s += `Address these comments:\n`;
+      open.forEach((c, i) => {
+        const q = c.quote.length > 90 ? c.quote.slice(0, 90) + "…" : c.quote;
+        s += `${i + 1}. [${c.section}] "${q}"\n   → ${c.body}\n\n`;
+      });
+    }
+    if (reorders.length) {
+      s += `Reorder these task lists:\n`;
+      reorders.forEach((r) => {
+        s += `• [${r.section}] new order: ${r.current.map((t, j) => `${j + 1}) ${t}`).join("  ")}\n`;
+      });
+      s += `\n`;
+    }
     s += `Keep the same structure and update plan.json with a "what changed" note.`;
     return s;
   }
 
-  let s = header(open.length);
-  open.forEach((c, i) => {
-    s += `── Comment ${i + 1}  ·  [${c.section}] ──\n`;
-    s += `Quoted from the plan:\n> ${c.quote}\n\n`;
-    s += `My feedback:\n${c.body}\n\n`;
-  });
+  let s = header(open.length, reorders.length);
+  if (open.length) {
+    s += `Each comment quotes the exact passage it refers to, followed by the change I want.\n\n`;
+    open.forEach((c, i) => {
+      s += `── Comment ${i + 1}  ·  [${c.section}] ──\n`;
+      s += `Quoted from the plan:\n> ${c.quote}\n\n`;
+      s += `My feedback:\n${c.body}\n\n`;
+    });
+  }
+  if (reorders.length) {
+    s += reorderDetail(reorders);
+  }
   s +=
     `When you respond:\n` +
     `• Apply each change directly to the new revision.\n` +
     `• Keep the existing section structure, headings, code blocks and diagrams (visual-planner plan format).\n` +
-    `• Add a short "What changed in this revision" summary at the top noting how you addressed each comment.\n` +
+    (reorders.length ? `• Reorder only the listed task items — keep their wording unchanged.\n` : "") +
+    `• Add a short "What changed in this revision" summary at the top noting how you addressed each item.\n` +
     `• If any feedback is unclear or conflicts with a constraint, ask before proceeding.`;
   return s;
 }
@@ -60,8 +98,14 @@ let modalEl: HTMLElement | null = null;
 
 export function openCopyModal(overlayRoot: HTMLElement, showToast: (msg: string) => void): void {
   const open = openComments();
-  if (!open.length) return;
+  const reorderCount = Object.keys(store.taskReorders).length;
+  if (!open.length && !reorderCount) return;
   closeCopyModal();
+
+  const summaryBits: string[] = [];
+  if (open.length) summaryBits.push(`${open.length} comment(s)`);
+  if (reorderCount) summaryBits.push(`${reorderCount} task reorder(s)`);
+  const summary = summaryBits.join(" + ");
 
   const pre = el("pre", { class: "modal-pre", text: buildFeedback() });
 
@@ -95,7 +139,7 @@ export function openCopyModal(overlayRoot: HTMLElement, showToast: (msg: string)
         el("div", { class: "ttl", text: "Send feedback to Claude Code" }),
         el("div", {
           class: "sub",
-          text: `${open.length} comment(s) · copy this and paste it into your Claude Code session`,
+          text: `${summary} · copy this and paste it into your Claude Code session`,
         }),
       ]),
       el("button", { class: "modal-close", type: "button", text: "✕", onClick: closeCopyModal }),

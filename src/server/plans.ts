@@ -2,10 +2,10 @@
  * Plan store: all disk access for plans lives here.
  *
  * Layout (relative to the project root the server was launched in):
- *   plans/<slug>/plan.json
- *   plans/<slug>/rev-001.md
- *   plans/<slug>/rev-002.md
- *   plans/<slug>/rev-002.comments.json   (optional, written by the viewer)
+ *   .plans/<slug>/plan.json
+ *   .plans/<slug>/rev-001.md
+ *   .plans/<slug>/rev-002.md
+ *   .plans/<slug>/rev-002.comments.json   (optional, written by the viewer)
  */
 
 import * as fs from "fs";
@@ -42,10 +42,13 @@ export interface PlanSummary {
   latest: number;
 }
 
-export const PLANS_DIR_NAME = "plans";
+// Dot-prefixed so it reads as tooling state (like `.claude`) and is easy to
+// gitignore. Plans live under the *current project root* (process.cwd()), so a
+// git worktree naturally gets its own `.plans/` separate from the main checkout.
+export const PLANS_DIR_NAME = ".plans";
 export const SLUG_RE = /^[a-z0-9][a-z0-9-]*$/;
 
-/** Absolute path to the plans/ directory for a given project root. */
+/** Absolute path to the .plans/ directory for a given project root. */
 export function plansDir(root: string): string {
   return path.join(root, PLANS_DIR_NAME);
 }

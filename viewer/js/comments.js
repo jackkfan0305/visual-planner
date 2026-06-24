@@ -264,7 +264,7 @@ function saveEdit(id, value) {
     const body = value.trim();
     if (!body)
         return;
-    store.comments = store.comments.map((c) => c.id === id ? { ...c, body } : c);
+    store.comments = store.comments.map((c) => (c.id === id ? { ...c, body } : c));
     editingId = null;
     changed();
 }
@@ -305,16 +305,51 @@ function renderSidebar() {
             setTimeout(() => ta.focus(), 0);
             bodyNode = ta;
             actionsNode = el("div", { class: "comment-actions" }, [
-                el("button", { class: "btn-resolve", text: "Save", onClick: (e) => { e.stopPropagation(); saveEdit(c.id, ta.value); } }),
-                el("button", { class: "btn-ghost", text: "Cancel", onClick: (e) => { e.stopPropagation(); cancelEdit(); } }),
+                el("button", {
+                    class: "btn-resolve",
+                    text: "Save",
+                    onClick: (e) => {
+                        e.stopPropagation();
+                        saveEdit(c.id, ta.value);
+                    },
+                }),
+                el("button", {
+                    class: "btn-ghost",
+                    text: "Cancel",
+                    onClick: (e) => {
+                        e.stopPropagation();
+                        cancelEdit();
+                    },
+                }),
             ]);
         }
         else {
             bodyNode = el("div", { class: "comment-body", text: c.body });
             actionsNode = el("div", { class: "comment-actions" }, [
-                el("button", { class: "btn-resolve", text: "Edit", onClick: (e) => { e.stopPropagation(); startEdit(c.id); } }),
-                el("button", { class: "btn-resolve", text: resolved ? "Reopen" : "Resolve", onClick: (e) => { e.stopPropagation(); toggleResolve(c.id); } }),
-                el("button", { class: "btn-delete", text: "Delete", onClick: (e) => { e.stopPropagation(); deleteComment(c.id); } }),
+                el("button", {
+                    class: "btn-resolve",
+                    text: "Edit",
+                    onClick: (e) => {
+                        e.stopPropagation();
+                        startEdit(c.id);
+                    },
+                }),
+                el("button", {
+                    class: "btn-resolve",
+                    text: resolved ? "Reopen" : "Resolve",
+                    onClick: (e) => {
+                        e.stopPropagation();
+                        toggleResolve(c.id);
+                    },
+                }),
+                el("button", {
+                    class: "btn-delete",
+                    text: "Delete",
+                    onClick: (e) => {
+                        e.stopPropagation();
+                        deleteComment(c.id);
+                    },
+                }),
             ]);
         }
         const children = [

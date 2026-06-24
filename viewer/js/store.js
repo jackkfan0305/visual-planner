@@ -9,6 +9,7 @@ export const store = {
     activeId: null,
     tone: "detailed",
     compareBase: null,
+    taskReorders: {},
 };
 const bus = new EventTarget();
 export function on(type, fn) {

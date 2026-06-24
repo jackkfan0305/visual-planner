@@ -31,6 +31,13 @@ export interface PlanSummary {
   latest: number;
 }
 
+/** A task list whose items the reviewer dragged into a new order. */
+export interface TaskReorder {
+  section: string;
+  original: string[];
+  current: string[];
+}
+
 export interface Store {
   slug: string | null;
   manifest: Manifest | null;
@@ -41,6 +48,8 @@ export interface Store {
   activeId: string | null;
   tone: "detailed" | "concise";
   compareBase: number | null;
+  /** Reordered task lists, keyed by `${section}::${listIndex}`. */
+  taskReorders: Record<string, TaskReorder>;
 }
 
 export const store: Store = {
@@ -53,6 +62,7 @@ export const store: Store = {
   activeId: null,
   tone: "detailed",
   compareBase: null,
+  taskReorders: {},
 };
 
 const bus = new EventTarget();

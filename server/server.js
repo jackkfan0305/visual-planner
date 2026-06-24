@@ -3,7 +3,7 @@
  * visual-planner viewer server.
  *
  * Zero external runtime dependencies — only Node built-ins. Serves the static
- * viewer (viewer/) and a small JSON API over the plans/ directory in the project
+ * viewer (viewer/) and a small JSON API over the .plans/ directory in the project
  * root.
  *
  * Usage:
@@ -201,7 +201,7 @@ function main() {
     listenWithRetry(server, opts.port, MAX_PORT_TRIES, (port) => {
         const query = opts.plan ? `/?plan=${encodeURIComponent(opts.plan)}` : "/";
         const urlStr = `http://localhost:${port}${query}`;
-        console.log(`[visual-planner] serving plans from ${path.join(opts.root, "plans")}`);
+        console.log(`[visual-planner] serving plans from ${plans.plansDir(opts.root)}`);
         console.log(`[visual-planner] open: ${urlStr}`);
         if (opts.open)
             (0, open_browser_1.openBrowser)(urlStr);

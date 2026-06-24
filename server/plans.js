@@ -3,10 +3,10 @@
  * Plan store: all disk access for plans lives here.
  *
  * Layout (relative to the project root the server was launched in):
- *   plans/<slug>/plan.json
- *   plans/<slug>/rev-001.md
- *   plans/<slug>/rev-002.md
- *   plans/<slug>/rev-002.comments.json   (optional, written by the viewer)
+ *   .plans/<slug>/plan.json
+ *   .plans/<slug>/rev-001.md
+ *   .plans/<slug>/rev-002.md
+ *   .plans/<slug>/rev-002.comments.json   (optional, written by the viewer)
  */
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -54,9 +54,12 @@ exports.readComments = readComments;
 exports.writeComments = writeComments;
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
-exports.PLANS_DIR_NAME = "plans";
+// Dot-prefixed so it reads as tooling state (like `.claude`) and is easy to
+// gitignore. Plans live under the *current project root* (process.cwd()), so a
+// git worktree naturally gets its own `.plans/` separate from the main checkout.
+exports.PLANS_DIR_NAME = ".plans";
 exports.SLUG_RE = /^[a-z0-9][a-z0-9-]*$/;
-/** Absolute path to the plans/ directory for a given project root. */
+/** Absolute path to the .plans/ directory for a given project root. */
 function plansDir(root) {
     return path.join(root, exports.PLANS_DIR_NAME);
 }

@@ -401,63 +401,64 @@ table.card-table td:first-child {
   list-style: none;
   margin: 0;
   padding: 0;
+  /* Numbers count by DOM position, so 1,2,3… stay fixed top-to-bottom on reorder. */
+  counter-reset: task;
 }
 .task {
   display: flex;
-  gap: 13px;
+  gap: 11px;
   align-items: flex-start;
   padding: 11px 10px;
   border-radius: 9px;
-  cursor: pointer;
+  background: var(--code-bg);
+  border: 1px solid transparent;
+  transition: background 0.14s, border-color 0.14s, opacity 0.14s;
+}
+/* Fixed position number to the left of each row. */
+.task::before {
+  counter-increment: task;
+  content: counter(task) ".";
+  flex: none;
+  min-width: 1.5em;
+  text-align: right;
+  align-self: center;
+  font: 600 12px var(--font-mono);
+  color: var(--text-mut);
+  user-select: none;
 }
 .task:hover {
   background: var(--surface-hover);
 }
-.task input.cc-task {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 18px;
-  height: 18px;
-  border: 1.5px solid var(--border-strong);
-  border-radius: 5px;
-  background: var(--code-bg);
-  cursor: pointer;
+/* 3-dot grip handle — the only place a drag can start. */
+.task-handle {
   flex: none;
-  position: relative;
-  transition: 0.14s;
-  margin: 0;
+  width: 16px;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 700 16px/1 var(--font-mono);
+  letter-spacing: 1px;
+  color: var(--text-mut);
+  cursor: grab;
+  user-select: none;
+  border-radius: 5px;
 }
-.task input.cc-task:checked {
-  background: var(--accent);
+.task-handle:hover {
+  color: var(--text);
+  background: var(--surface-3);
+}
+.task.dragging {
+  opacity: 0.55;
+  cursor: grabbing;
   border-color: var(--accent);
+  background: var(--surface-hover);
 }
-.task input.cc-task:checked::after {
-  content: "";
-  position: absolute;
-  left: 5.5px;
-  top: 1.5px;
-  width: 4px;
-  height: 9px;
-  border: solid var(--cream);
-  border-width: 0 2px 2px 0;
-  transform: rotate(43deg);
+.task.dragging .task-handle {
+  cursor: grabbing;
 }
 .task-text {
   flex: 1;
   font: 500 13.5px/1.5 var(--font-sans);
   color: #d6d6d4;
-}
-.task input.cc-task:checked + .task-text {
-  color: var(--text-faint);
-  text-decoration: line-through;
-  text-decoration-color: var(--border-strong);
-}
-.task-time {
-  font: 600 10px var(--font-mono);
-  color: var(--text-mut);
-  background: var(--surface-3);
-  border: 1px solid var(--border-strong);
-  border-radius: 999px;
-  padding: 3px 9px;
-  flex: none;
 }

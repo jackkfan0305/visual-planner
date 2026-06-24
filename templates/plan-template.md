@@ -8,7 +8,7 @@
   This is a normal Markdown file. The viewer renders each `## ` heading below as a
   card, so keep one logical topic per section. Everything here is standard Markdown,
   which means the file is also perfectly readable on its own and easy for Claude to
-  reference later (e.g. @plans/<slug>/rev-001.md).
+  reference later (e.g. @.plans/<slug>/rev-001.md).
 
   Conventions the viewer understands (all optional):
   - `## NN — Section Name`  -> card with number badge NN and a category label derived
@@ -24,8 +24,10 @@
   - A numbered list under an "Architecture" / "Flow" section renders as a step diagram.
   - Markdown tables render styled. Mark the chosen row with `**chosen**` (or `(chosen)`)
     in its first cell to get a CHOSEN chip.
-  - Task lists `- [ ] ...` render as checkboxes. Append a time estimate token like
-    `~30m` at the end of a task to show a time chip.
+  - Task lists `- [ ] ...` render as a drag-to-reorder list: each row has a 3-dot grip handle
+    and a fixed position number (1, 2, 3 …) on the left that stays put as the reviewer drags
+    rows to re-sequence the work. Author tasks in the order you recommend. A trailing time
+    token like `~30m` is accepted but no longer displayed.
 
   Section layout is only a suggestion. The sections below (Overview, Approach, Architecture,
   Affected files, Implementation, Security, Test plan, Tradeoffs, Tasks ...) are a starting
@@ -42,7 +44,26 @@ boundary. Reference concrete things with inline `code`.>
 
 ## 02 — Approach
 
-<The strategy and the key decision. Why this approach over the obvious alternative.>
+<!--
+  APPROACH SECTION — write it detailed AND easy to understand. Follow this guidance:
+  1. Open with ONE plain-language sentence stating the chosen strategy (the "what", no jargon).
+  2. Then explain HOW it works, walking through it in the order a reader would reason about
+     it. Use short paragraphs or a short bullet list — never one dense block.
+  3. State the KEY DECISION explicitly and justify it against the obvious alternative
+     (point back to the Tradeoffs table rather than repeating it).
+  4. The first time a non-obvious term, constraint, or assumption appears, define it inline
+     in one clause so a reader new to this area is never lost.
+  5. Ground every claim in concrete references — real files, functions, and `code` from this
+     repo — not abstract prose.
+  Goal: thorough enough that an engineer could defend the design, skimmable enough that a
+  newcomer understands both WHAT we're doing and WHY in one read.
+-->
+
+<One-sentence plain-language summary of the strategy.>
+
+<Then: how it works, step by step, in short readable paragraphs or bullets. Name the key
+decision and why it beats the obvious alternative. Define non-obvious terms inline. Reference
+real files and functions.>
 
 > [!NOTE] One thing worth calling out
 > A supporting detail, constraint, or gotcha that informs the approach.

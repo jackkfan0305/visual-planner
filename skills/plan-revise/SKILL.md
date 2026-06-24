@@ -13,10 +13,10 @@ or if the user just pasted feedback that names the plan file).
 
 ## Steps
 
-1. **Resolve the plan.** Read `plans/<slug>/plan.json` to find the latest revision number `N`
+1. **Resolve the plan.** Read `.plans/<slug>/plan.json` to find the latest revision number `N`
    and its file `rev-00N.md`.
 
-2. **Gather the comments.** Read the sidecar `plans/<slug>/rev-00N.comments.json` (written by
+2. **Gather the comments.** Read the sidecar `.plans/<slug>/rev-00N.comments.json` (written by
    the viewer). Each entry is `{ id, section, quote, body, status }`. Address every comment
    whose `status` is not `"resolved"`. If the user pasted a feedback prompt instead, use that
    as the source of changes.
@@ -33,7 +33,7 @@ or if the user just pasted feedback that names the plan file).
    > - Addressed the comment on <section>: <one line>.
    ```
 
-5. **Update the manifest** `plans/<slug>/plan.json`: bump `latest` to `N+1` and append a
+5. **Update the manifest** `.plans/<slug>/plan.json`: bump `latest` to `N+1` and append a
    revision entry with a one-line `summary` of the changes and the current `createdAt`.
 
 6. **Make sure it's open in the browser.** If the viewer is already running it picks up the new
@@ -54,6 +54,10 @@ or if the user just pasted feedback that names the plan file).
 ## Notes
 
 - Never overwrite an existing revision — always write the next number.
+- The pasted feedback may include **task reorder** blocks ("Rewrite the task list in this
+  section so the items appear in exactly this order: ..."). When present, reorder the matching
+  `- [ ]` items in that section to the listed sequence and leave their wording and estimates
+  unchanged. (Reorders live only in the pasted prompt, not in the comments sidecar.)
 - If a comment is unclear or conflicts with a constraint, ask the user before proceeding
   rather than guessing.
 - Use 3-digit zero-padded revision numbers.

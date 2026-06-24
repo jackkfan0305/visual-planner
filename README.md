@@ -18,7 +18,7 @@ revision. Every revision is saved locally, and you can switch between them and s
 ## The loop
 
 1. **Generate** — `/visual-planner:plan <feature>` → Claude researches your codebase and
-   writes `plans/<slug>/rev-001.md` plus a manifest.
+   writes `.plans/<slug>/rev-001.md` plus a manifest.
 2. **Review** — `/visual-planner:plan-view <slug>` → opens the plan in your browser.
    Highlight text → **+ Comment** → write what you want changed.
 3. **Send back** — click **Send feedback**, copy the generated prompt, and paste it into
@@ -69,7 +69,7 @@ All commands are namespaced under `visual-planner:`.
 
 | Command | What it does |
 | --- | --- |
-| `/visual-planner:plan <feature description>` | Researches your codebase and writes revision 1 of a plan to `plans/<slug>/rev-001.md`. |
+| `/visual-planner:plan <feature description>` | Researches your codebase and writes revision 1 of a plan to `.plans/<slug>/rev-001.md`. |
 | `/visual-planner:plan-view [slug]` | Starts the local viewer and opens the plan in your browser. Omit the slug to get a picker. |
 | `/visual-planner:plan-revise [slug]` | Applies the comments saved from the viewer and writes the next revision. (Pasting the **Send feedback** prompt does the same thing.) |
 
@@ -83,20 +83,25 @@ Example:
 
 ### Where plans are stored
 
-Plans live in a `plans/` folder at the root of the **current project**, one folder per plan:
+Plans live in a `.plans/` folder at the root of the **current project**, one folder per plan:
 
 ```text
-plans/
+.plans/
 └── add-rate-limiting/
     ├── plan.json              # manifest: title, branch, revisions, latest
-    ├── rev-001.md             # revision 1 (plain Markdown — reference it with @plans/...)
+    ├── rev-001.md             # revision 1 (plain Markdown — reference it with @.plans/...)
     ├── rev-002.md             # revision 2
     └── rev-002.comments.json  # comments captured in the viewer (optional sidecar)
 ```
 
-The `rev-*.md` files are ordinary Markdown, so they're useful on their own — commit them
-to version control to keep a record of how a plan evolved, or add `plans/` to `.gitignore`
-if you'd rather keep them local. Reference any revision in chat with `@plans/<slug>/rev-002.md`.
+The folder is dot-prefixed (like `.claude`) so it reads as local tooling state, and the
+`plan` command adds `.plans/` to your project's `.gitignore` so plans stay out of your
+commits and "files changed" history by default. The `rev-*.md` files are still ordinary
+Markdown that you can reference in chat with `@.plans/<slug>/rev-002.md` — and if you'd
+rather version them, just remove the `.gitignore` line and commit them.
+
+Because `.plans/` is rooted at the current project directory, each **git worktree** keeps its
+own `.plans/` — plans created in one worktree don't leak into another.
 
 ---
 
@@ -110,7 +115,7 @@ conventions (full details in [`templates/plan-template.md`](./templates/plan-tem
 - a ```` ```tree ```` fence with `+ new` / `~ note` / `· unchanged` markers → annotated file tree
 - a numbered list under an "Architecture" section → step-flow diagram
 - Markdown tables (mark the chosen row with `(chosen)`) → styled comparison table with a CHOSEN chip
-- `- [ ]` task lists with `~30m`-style tokens → checklist with time chips
+- `- [ ]` task lists → drag-to-reorder list with a 3-dot grip handle and fixed position numbers (1, 2, 3 …)
 
 ---
 
@@ -122,7 +127,7 @@ The viewer server (`server/server.js`, launched by the `bin/visual-planner` wrap
 | --- | --- | --- |
 | `--plan <slug>` | — | Plan to open on launch. |
 | `--port <n>` | `4517` | Listen port (auto-increments if busy). |
-| `--root <dir>` | current dir | Project root that contains `plans/`. |
+| `--root <dir>` | current dir | Project root that contains `.plans/`. |
 | `--no-open` | off | Don't auto-open the browser. |
 
 ---

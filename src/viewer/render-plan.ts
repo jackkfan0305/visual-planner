@@ -8,6 +8,7 @@
 
 import { el, escapeHtml, clear } from "./dom.js";
 import { highlight } from "./highlight.js";
+import { store, emit } from "./store.js";
 import type { Token, Tokens } from "marked";
 
 const marked = window.marked;
@@ -153,27 +154,107 @@ function renderTable(token: Tokens.Table): HTMLElement {
   return wrap;
 }
 
+// Tasks render as a drag-to-reorder list: a 3-dot handle grips each row, and
+// dragging rewrites the order. The new order is captured in `store.taskReorders`
+// so the feedback prompt can tell Claude Code exactly how to re-sequence them.
 function renderTasks(items: Tokens.ListItem[]): HTMLElement {
   const ul = el("ul", { class: "tasks" });
+  const order: string[] = [];
   items.forEach((item) => {
     let text = item.text;
-    let time = "";
+    // Strip any trailing time estimate (e.g. `~30m`) — timing is no longer displayed.
     const tm = text.match(/`?(~?\s*\d+\s*(?:m|min|h|hr|hrs)?)`?\s*$/i);
-    if (tm && /[\dmh]/i.test(tm[1])) {
-      time = tm[1].replace(/`/g, "").trim();
-      text = text.slice(0, tm.index).trim();
-    }
-    const input = el("input", { type: "checkbox", class: "cc-task" }) as HTMLInputElement;
-    if (item.checked) input.checked = true;
-    ul.append(
-      el("label", { class: "task" }, [
-        input,
-        el("span", { class: "task-text", html: inline(text) }),
-        time ? el("span", { class: "task-time", text: time }) : null,
-      ])
-    );
+    if (tm && /[\dmh]/i.test(tm[1])) text = text.slice(0, tm.index).trim();
+    order.push(text);
+    // `draggable` is toggled on only while the grip handle is pressed, so plain
+    // text in the row stays selectable for the comment feature. The position number
+    // is drawn by CSS (`.task::before`), so it counts by DOM order and stays fixed
+    // (1, 2, 3 …) as rows are dragged.
+    const li = el("li", { class: "task", draggable: "false", dataset: { taskText: text } }, [
+      el("span", { class: "task-handle", title: "Drag to reorder", "aria-hidden": "true", text: "⋮" }),
+      el("span", { class: "task-text", html: inline(text) }),
+    ]);
+    ul.append(li);
   });
+  ul.dataset.originalOrder = JSON.stringify(order);
+  wireTaskDnd(ul);
   return ul;
+}
+
+// Find the task the dragged row should be inserted before, given the pointer Y.
+function dragAfter(ul: HTMLElement, y: number): HTMLElement | null {
+  const rows = Array.from(ul.querySelectorAll<HTMLElement>(".task:not(.dragging)"));
+  let closest: { offset: number; el: HTMLElement | null } = { offset: -Infinity, el: null };
+  for (const row of rows) {
+    const box = row.getBoundingClientRect();
+    const offset = y - box.top - box.height / 2;
+    if (offset < 0 && offset > closest.offset) closest = { offset, el: row };
+  }
+  return closest.el;
+}
+
+function wireTaskDnd(ul: HTMLElement): void {
+  let dragEl: HTMLElement | null = null;
+
+  // Only a press on the grip handle arms the row for dragging.
+  ul.addEventListener("mousedown", (e) => {
+    const target = e.target as HTMLElement;
+    const li = target.closest<HTMLElement>(".task");
+    if (li) li.draggable = Boolean(target.closest(".task-handle"));
+  });
+
+  ul.addEventListener("dragstart", (e) => {
+    const li = (e.target as HTMLElement).closest<HTMLElement>(".task");
+    if (!li || !ul.contains(li)) return;
+    dragEl = li;
+    li.classList.add("dragging");
+    const dt = (e as DragEvent).dataTransfer;
+    if (dt) dt.effectAllowed = "move";
+  });
+
+  ul.addEventListener("dragover", (e) => {
+    if (!dragEl) return;
+    e.preventDefault();
+    const dt = (e as DragEvent).dataTransfer;
+    if (dt) dt.dropEffect = "move";
+    const after = dragAfter(ul, (e as DragEvent).clientY);
+    if (after == null) ul.appendChild(dragEl);
+    else ul.insertBefore(dragEl, after);
+  });
+
+  ul.addEventListener("dragend", () => {
+    if (dragEl) {
+      dragEl.classList.remove("dragging");
+      dragEl.draggable = false;
+    }
+    dragEl = null;
+    commitTaskOrder(ul);
+  });
+}
+
+// Record the current DOM order into the store (or clear it when it matches the
+// original), keyed by the section title and the list's position within it.
+function commitTaskOrder(ul: HTMLElement): void {
+  const sectionEl = ul.closest<HTMLElement>("[data-section]");
+  const section = sectionEl?.getAttribute("data-section") ?? "Plan";
+  const lists = sectionEl ? Array.from(sectionEl.querySelectorAll("ul.tasks")) : [ul];
+  const listIndex = Math.max(0, lists.indexOf(ul));
+  const key = `${section}::${listIndex}`;
+
+  let original: string[] = [];
+  try {
+    original = JSON.parse(ul.dataset.originalOrder ?? "[]") as string[];
+  } catch {
+    original = [];
+  }
+  const current = Array.from(ul.querySelectorAll<HTMLElement>(".task")).map((li) => li.dataset.taskText ?? "");
+
+  if (JSON.stringify(current) === JSON.stringify(original)) {
+    delete store.taskReorders[key];
+  } else {
+    store.taskReorders[key] = { section, original, current };
+  }
+  emit("tasks:reordered");
 }
 
 // marked's `Token` union includes a permissive `Tokens.Generic` member that is
@@ -213,6 +294,8 @@ function renderBodyToken(token: Token, sectionLabel: string): Node | null {
 /** Render markdown into `container`. */
 export function renderPlan(container: HTMLElement, markdown: string): void {
   clear(container);
+  // A fresh render reflects a fresh plan body, so any prior drag order no longer applies.
+  store.taskReorders = {};
   const tokens = marked.lexer(markdown ?? "");
 
   const frag = document.createDocumentFragment();
