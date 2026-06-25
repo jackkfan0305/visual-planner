@@ -72,7 +72,7 @@ function openMenu(overlayRoot: HTMLElement): void {
     list,
     el("div", { class: "rev-menu-foot" }, [
       compareBtn,
-      el("span", { class: "hint", text: "Each revision is produced by Claude Code from your feedback." }),
+      el("span", { class: "hint", text: "Each revision is produced by your coding agent from your feedback." }),
     ]),
   ]);
 

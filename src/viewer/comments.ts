@@ -160,7 +160,7 @@ function openComposer(e: Event): void {
   const quote = s.quote;
   closeBubble();
 
-  const textarea = el("textarea", { placeholder: "Tell Claude Code what to change here…" }) as HTMLTextAreaElement;
+  const textarea = el("textarea", { placeholder: "Tell your coding agent what to change here…" }) as HTMLTextAreaElement;
   const addBtn = el("button", { class: "btn-add", type: "button", text: "Add comment" }) as HTMLButtonElement;
   addBtn.disabled = true;
   textarea.addEventListener("input", () => {
@@ -316,7 +316,7 @@ function renderSidebar(): void {
         el("div", { class: "sub" }, [
           "Select any text in the plan — like ",
           el("mark", { text: "this passage" }),
-          " — to leave a comment for Claude Code.",
+          " — to leave a comment for your coding agent.",
         ]),
       ])
     );

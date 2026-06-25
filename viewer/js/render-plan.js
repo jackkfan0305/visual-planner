@@ -143,7 +143,7 @@ function renderTable(token) {
 }
 // Tasks render as a drag-to-reorder list: a 3-dot handle grips each row, and
 // dragging rewrites the order. The new order is captured in `store.taskReorders`
-// so the feedback prompt can tell Claude Code exactly how to re-sequence them.
+// so the feedback prompt can tell the coding agent exactly how to re-sequence them.
 function renderTasks(items) {
     const ul = el("ul", { class: "tasks" });
     const order = [];

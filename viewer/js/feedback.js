@@ -1,6 +1,6 @@
 // Build the copy-pasteable feedback prompt and the "Send feedback" modal.
 // Ported from buildFeedback() in Plan Review.dc.html, augmented with a
-// self-contained header that tells Claude Code which files to write.
+// self-contained header that tells the coding agent which files to write.
 import { el } from "./dom.js";
 import { store, openComments } from "./store.js";
 function revFile(rev) {
@@ -117,22 +117,22 @@ export function openCopyModal(overlayRoot, showToast) {
         catch {
             /* clipboard may be blocked; user can select manually */
         }
-        showToast("Copied — paste into Claude Code");
+        showToast("Copied — paste into your coding agent");
     });
     const modal = el("div", { class: "modal", "data-cc-ui": "", onClick: (e) => e.stopPropagation() }, [
         el("div", { class: "modal-head" }, [
             el("div", {}, [
-                el("div", { class: "ttl", text: "Send feedback to Claude Code" }),
+                el("div", { class: "ttl", text: "Send feedback to your coding agent" }),
                 el("div", {
                     class: "sub",
-                    text: `${summary} · copy this and paste it into your Claude Code session`,
+                    text: `${summary} · copy this and paste it into your coding agent session`,
                 }),
             ]),
             el("button", { class: "modal-close", type: "button", text: "✕", onClick: closeCopyModal }),
         ]),
         pre,
         el("div", { class: "modal-foot" }, [
-            el("span", { class: "note", text: "Claude Code revises the plan, you review again — repeat." }),
+            el("span", { class: "note", text: "Your coding agent revises the plan, you review again — repeat." }),
             el("div", { class: "tone-toggle" }, [toneBtn("detailed", "Detailed"), toneBtn("concise", "Concise")]),
             copyBtn,
         ]),

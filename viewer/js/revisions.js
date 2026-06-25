@@ -59,7 +59,7 @@ function openMenu(overlayRoot) {
         list,
         el("div", { class: "rev-menu-foot" }, [
             compareBtn,
-            el("span", { class: "hint", text: "Each revision is produced by Claude Code from your feedback." }),
+            el("span", { class: "hint", text: "Each revision is produced by your coding agent from your feedback." }),
         ]),
     ]);
     const overlay = el("div", { class: "rev-overlay", "data-cc-ui": "", onClick: closeMenu });
