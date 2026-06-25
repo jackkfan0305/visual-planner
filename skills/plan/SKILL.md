@@ -65,12 +65,13 @@ browser viewer and iterate on.
    }
    ```
 
-7. **Keep plans out of git.** Plans are local working artifacts, not source to commit. Ensure
-   the project root `.gitignore` ignores the plans directory: if a `.gitignore` exists and does
-   not already contain a `.plans/` rule, append a line `.plans/` (under a brief comment like
-   `# visual-planner local plans`); if no `.gitignore` exists, create one containing `.plans/`.
-   Do this once — skip if the rule is already present. (`.plans/` lives in the current project
-   root, so each git worktree keeps its own copy.)
+7. **Keep plans out of git.** Plans are local working artifacts, not source to commit. If the
+   current project is inside a git repository, ensure the local exclude file ignores the plans
+   directory: resolve the git metadata path with `git rev-parse --git-path info/exclude`, create
+   the parent directory if needed, and append `.plans/` if that exact rule is not already present.
+   Do this once per checkout/worktree. Do not edit the project `.gitignore` for visual-planner
+   unless the user explicitly asks for shared, committed ignore rules. If the current project is
+   not inside a git repository, just create `.plans/<slug>/` and continue.
 
 8. **Open it in the browser automatically.** Don't make the user run a separate command —
    start the viewer in the background from the current project directory so the plan shows up

@@ -154,13 +154,14 @@ Plans live in a `.plans/` folder at the root of the **current project**, one fol
 ```
 
 The folder is dot-prefixed (like `.claude`) so it reads as local tooling state, and the
-`plan` command adds `.plans/` to your project's `.gitignore` so plans stay out of your
-commits and "files changed" history by default. The `rev-*.md` files are still ordinary
-Markdown that you can reference in chat with `@.plans/<slug>/rev-002.md` — and if you'd
-rather version them, just remove the `.gitignore` line and commit them.
+`plan` command adds `.plans/` to Git's local exclude file (`.git/info/exclude`) when the
+project is in a git repository. That keeps plans out of commits and "files changed" history
+without modifying your project's committed `.gitignore`. The `rev-*.md` files are still
+ordinary Markdown that you can reference in chat with `@.plans/<slug>/rev-002.md`. If a team
+wants shared, versioned plans, commit them deliberately and remove the local exclude rule.
 
 Because `.plans/` is rooted at the current project directory, each **git worktree** keeps its
-own `.plans/` — plans created in one worktree don't leak into another.
+own `.plans/` and local exclude rule — plans created in one worktree don't leak into another.
 
 ---
 

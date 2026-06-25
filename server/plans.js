@@ -54,9 +54,9 @@ exports.readComments = readComments;
 exports.writeComments = writeComments;
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
-// Dot-prefixed so it reads as tooling state (like `.claude`) and is easy to
-// gitignore. Plans live under the *current project root* (process.cwd()), so a
-// git worktree naturally gets its own `.plans/` separate from the main checkout.
+// Dot-prefixed so it reads as tooling state (like `.claude`) and can be ignored
+// via Git's local exclude file. Plans live under the *current project root*
+// (process.cwd()), so a git worktree naturally gets its own `.plans/`.
 exports.PLANS_DIR_NAME = ".plans";
 exports.SLUG_RE = /^[a-z0-9][a-z0-9-]*$/;
 /** Absolute path to the .plans/ directory for a given project root. */
