@@ -1,6 +1,6 @@
 # Visual Planner
 
-A Codex and [Claude Code](https://docs.claude.com/en/docs/claude-code) plugin for
+A Codex and Claude Code plugin for
 **browser-reviewable, iterable planning**.
 
 Instead of a plan scrolling past in your terminal, your coding agent writes it to a local
