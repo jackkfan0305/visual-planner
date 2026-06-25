@@ -1,7 +1,8 @@
 ---
+name: plan
 description: Generate a detailed implementation plan as a local Markdown file you can review in the browser. Use when the user runs /visual-planner:plan or asks to "plan" a feature with the visual planner.
 argument-hint: <feature description>
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # Create a visual plan
@@ -20,7 +21,10 @@ browser viewer and iterate on.
 2. **Pick a slug.** Derive a short, kebab-case slug from the feature (lowercase letters,
    digits, hyphens only), e.g. `add-google-oauth`. This is the plan's folder name.
 
-3. **Read the format.** Read `${CLAUDE_PLUGIN_ROOT}/templates/plan-template.md` and follow
+3. **Resolve the plugin root.** In Claude Code, use `${CLAUDE_PLUGIN_ROOT}`. In Codex, use this
+   skill file's source path: the plugin root is two directories above `skills/plan/SKILL.md`.
+
+4. **Read the format.** Read `<plugin-root>/templates/plan-template.md` and follow
    its conventions exactly. Each `## ` heading becomes a card in the viewer. Use the
    primitives the viewer understands: `> [!NOTE]` / `> [!WARN]` callouts, fenced code
    blocks with a file path in the info string (e.g. ```` ```ts lib/auth.ts ````), a
@@ -30,7 +34,7 @@ browser viewer and iterate on.
    lists render in the viewer as a drag-to-reorder list with a 3-dot grip handle — not
    checkboxes — so author tasks in the order you recommend executing them.
 
-4. **Write the plan** to `.plans/<slug>/rev-001.md`. Make it genuinely detailed and specific
+5. **Write the plan** to `.plans/<slug>/rev-001.md`. Make it genuinely detailed and specific
    to this codebase: Overview, Approach, Architecture, Affected files, Implementation
    (with real code), Security (if relevant), a **Test plan**, Tradeoffs, and Tasks. Keep it
    scannable.
@@ -47,7 +51,7 @@ browser viewer and iterate on.
    only a suggestion: add, remove, reorder, or rename sections to fit the work, and only keep
    the ones that earn their place.
 
-5. **Write the manifest** `.plans/<slug>/plan.json`:
+6. **Write the manifest** `.plans/<slug>/plan.json`:
    ```json
    {
      "slug": "<slug>",
@@ -61,30 +65,32 @@ browser viewer and iterate on.
    }
    ```
 
-6. **Keep plans out of git.** Plans are local working artifacts, not source to commit. Ensure
+7. **Keep plans out of git.** Plans are local working artifacts, not source to commit. Ensure
    the project root `.gitignore` ignores the plans directory: if a `.gitignore` exists and does
    not already contain a `.plans/` rule, append a line `.plans/` (under a brief comment like
    `# visual-planner local plans`); if no `.gitignore` exists, create one containing `.plans/`.
    Do this once — skip if the rule is already present. (`.plans/` lives in the current project
    root, so each git worktree keeps its own copy.)
 
-7. **Open it in the browser automatically.** Don't make the user run a separate command —
+8. **Open it in the browser automatically.** Don't make the user run a separate command —
    start the viewer in the background from the current project directory so the plan shows up
-   immediately. Use the launcher (on PATH while the plugin is enabled), falling back to node:
+   immediately. Use the launcher if it is on PATH, falling back to node with the resolved
+   plugin root:
 
    ```bash
-   visual-planner --plan "<slug>" || node "${CLAUDE_PLUGIN_ROOT}/server/server.js" --plan "<slug>"
+   visual-planner --plan "<slug>" || node "<plugin-root>/server/server.js" --plan "<slug>"
    ```
 
    Run it as a **background process** so the session stays interactive. The server prints a
    line like `[visual-planner] open: http://localhost:4517/?plan=<slug>` and opens the browser
    automatically (the port auto-increments if busy).
 
-8. **Report the link.** Copy the printed URL into your reply so the user always has it, even if
+9. **Report the link.** Copy the printed URL into your reply so the user always has it, even if
    the browser didn't open on its own:
    > Your plan is ready and open in the browser: **http://localhost:<port>/?plan=<slug>**
    > Highlight any text to leave comments, then click **Send feedback** to get a prompt you
-   > paste back here for the next revision. (Reopen anytime with `/visual-planner:plan-view <slug>`.)
+   > paste back here for the next revision. (In Claude Code, reopen anytime with
+   > `/visual-planner:plan-view <slug>`; in Codex, ask to open the visual plan viewer.)
 
 ## Notes
 

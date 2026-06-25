@@ -1,8 +1,9 @@
 # Visual Planner
 
-A [Claude Code](https://docs.claude.com/en/docs/claude-code) plugin for **browser-reviewable, iterable planning**.
+A Codex and [Claude Code](https://docs.claude.com/en/docs/claude-code) plugin for
+**browser-reviewable, iterable planning**.
 
-Instead of a plan scrolling past in your terminal, Claude Code writes it to a local
+Instead of a plan scrolling past in your terminal, your coding agent writes it to a local
 Markdown file and you review it in a polished browser UI: highlight any passage, leave a
 comment, and click **Send feedback** to get a ready-to-paste prompt that produces the next
 revision. Every revision is saved locally, and you can switch between them and see the diff.
@@ -17,20 +18,23 @@ revision. Every revision is saved locally, and you can switch between them and s
 
 ## The loop
 
-1. **Generate** — `/visual-planner:plan <feature>` → Claude researches your codebase and
+1. **Generate** — ask Codex to use Visual Planner, or run
+   `/visual-planner:plan <feature>` in Claude Code. The agent researches your codebase and
    writes `.plans/<slug>/rev-001.md` plus a manifest.
-2. **Review** — `/visual-planner:plan-view <slug>` → opens the plan in your browser.
+2. **Review** — ask Codex to open the visual plan viewer, or run
+   `/visual-planner:plan-view <slug>` in Claude Code. This opens the plan in your browser.
    Highlight text → **+ Comment** → write what you want changed.
 3. **Send back** — click **Send feedback**, copy the generated prompt, and paste it into
-   Claude Code (or run `/visual-planner:plan-revise <slug>`).
-4. **Iterate** — Claude writes `rev-002.md`. The viewer picks it up live; switch to it and
+   Codex or Claude Code (or run `/visual-planner:plan-revise <slug>` in Claude Code).
+4. **Iterate** — the agent writes `rev-002.md`. The viewer picks it up live; switch to it and
    hit **Compare with previous** to see exactly what changed. Repeat until it's right.
 
 ---
 
 ## Prerequisites
 
-- **Claude Code** recent enough to have the `/plugin` command (`/help` should list it).
+- **Codex** with plugin support, or **Claude Code** recent enough to have the `/plugin`
+  command (`/help` should list it).
 - **Node.js ≥ 18** on your `PATH`. The viewer server uses only Node built-ins — there is
   **no `npm install`** and **no dependencies** to pull.
 - A modern **browser** (Chrome, Edge, Safari, or Firefox). The in-page comment highlighter
@@ -40,7 +44,61 @@ revision. Every revision is saved locally, and you can switch between them and s
 
 ## Install
 
-### Option A — Marketplace (recommended)
+This repository is dual-packaged:
+
+- `.codex-plugin/plugin.json` for Codex.
+- `.claude-plugin/plugin.json` for Claude Code.
+
+### Codex — Local plugin
+
+Clone the repo into your personal Codex plugins directory:
+
+```bash
+mkdir -p ~/plugins
+git clone https://github.com/jackkfan0305/visual-planner ~/plugins/visual-planner
+```
+
+Add it to the default personal marketplace at `~/.agents/plugins/marketplace.json`. If that
+file already exists, add just the `visual-planner` entry to its `plugins` array:
+
+```json
+{
+  "name": "personal",
+  "interface": {
+    "displayName": "Personal"
+  },
+  "plugins": [
+    {
+      "name": "visual-planner",
+      "source": {
+        "source": "local",
+        "path": "./plugins/visual-planner"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}
+```
+
+Then install it and start a new Codex thread so the skills are loaded:
+
+```bash
+codex plugin add visual-planner@personal
+```
+
+In Codex, use natural language triggers such as:
+
+```text
+Use Visual Planner to create a plan for adding rate limiting to the public API.
+Open the visual plan viewer for add-rate-limiting.
+Revise the visual plan from my review comments.
+```
+
+### Claude Code — Marketplace
 
 ```text
 /plugin marketplace add jackkfan0305/visual-planner
@@ -50,7 +108,7 @@ revision. Every revision is saved locally, and you can switch between them and s
 
 Or open the `/plugin` UI, add the marketplace, and install from there.
 
-### Option B — Local / development
+### Claude Code — Local / development
 
 Clone the repo and point Claude Code at it:
 
@@ -65,7 +123,8 @@ Verify it loaded with `/help` — you should see the three `visual-planner:*` co
 
 ## Usage
 
-All commands are namespaced under `visual-planner:`.
+In Claude Code, all commands are namespaced under `visual-planner:`. In Codex, the same
+workflows are exposed as skills, so ask for Visual Planner by name.
 
 | Command | What it does |
 | --- | --- |
@@ -134,8 +193,11 @@ The viewer server (`server/server.js`, launched by the `bin/visual-planner` wrap
 
 ## Troubleshooting
 
-- **Commands don't appear** — run `/reload-plugins`, and remember they're namespaced
-  (`/visual-planner:plan`, not `/plan`). Update Claude Code if `/plugin` is missing.
+- **Commands don't appear in Claude Code** — run `/reload-plugins`, and remember they're
+  namespaced (`/visual-planner:plan`, not `/plan`). Update Claude Code if `/plugin` is missing.
+- **Visual Planner is not available in Codex** — reinstall with
+  `codex plugin add visual-planner@personal`, then start a new thread so Codex reloads plugin
+  skills.
 - **Browser didn't open** — copy the `http://localhost:<port>/...` URL from the command
   output and open it manually.
 - **Port already in use** — the server auto-increments; check the printed URL for the

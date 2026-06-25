@@ -1,0 +1,42 @@
+{
+  "name": "visual-planner",
+  "version": "0.1.8",
+  "description": "Browser-reviewable, iterable planning for Codex and Claude Code.",
+  "author": {
+    "name": "Jack Fan",
+    "url": "https://github.com/jackkfan0305"
+  },
+  "homepage": "https://github.com/jackkfan0305/visual-planner",
+  "repository": "https://github.com/jackkfan0305/visual-planner",
+  "license": "MIT",
+  "keywords": [
+    "planning",
+    "plan",
+    "review",
+    "iteration",
+    "diff",
+    "markdown"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Visual Planner",
+    "shortDescription": "Review implementation plans in a browser UI",
+    "longDescription": "Generate local Markdown implementation plans, review them in a browser, leave anchored comments, and iterate revision-by-revision with visual diffs.",
+    "developerName": "Jack Fan",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/jackkfan0305/visual-planner",
+    "defaultPrompt": [
+      "Create a browser-reviewable implementation plan",
+      "Open the visual plan viewer",
+      "Revise my plan from review comments"
+    ],
+    "brandColor": "#2563EB",
+    "screenshots": [
+      "./assets/screenshot.png"
+    ]
+  }
+}

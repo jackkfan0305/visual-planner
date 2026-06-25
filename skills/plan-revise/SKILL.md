@@ -1,7 +1,8 @@
 ---
+name: plan-revise
 description: Apply review comments to a plan and produce the next revision. Use when the user runs /visual-planner:plan-revise, or pastes back feedback from the viewer.
 argument-hint: [slug]
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # Revise a plan from comments
@@ -21,33 +22,38 @@ or if the user just pasted feedback that names the plan file).
    whose `status` is not `"resolved"`. If the user pasted a feedback prompt instead, use that
    as the source of changes.
 
-3. **Apply the changes** to a *new* revision. Read `rev-00N.md`, apply each comment's
+3. **Resolve the plugin root.** In Claude Code, use `${CLAUDE_PLUGIN_ROOT}`. In Codex, use this
+   skill file's source path: the plugin root is two directories above
+   `skills/plan-revise/SKILL.md`.
+
+4. **Apply the changes** to a *new* revision. Read `rev-00N.md`, apply each comment's
    requested change to the relevant passage, and write the result to `rev-00(N+1).md`. Keep
    the existing section structure, headings, code blocks, tables and diagrams (the
-   visual-planner plan format — see `${CLAUDE_PLUGIN_ROOT}/templates/plan-template.md`).
+   visual-planner plan format — see `<plugin-root>/templates/plan-template.md`).
 
-4. **Add a change summary.** At the top of the new revision (right after the title/meta), add
+5. **Add a change summary.** At the top of the new revision (right after the title/meta), add
    a short callout summarizing what changed, e.g.:
    ```
    > [!NOTE] What changed in rev N+1
    > - Addressed the comment on <section>: <one line>.
    ```
 
-5. **Update the manifest** `.plans/<slug>/plan.json`: bump `latest` to `N+1` and append a
+6. **Update the manifest** `.plans/<slug>/plan.json`: bump `latest` to `N+1` and append a
    revision entry with a one-line `summary` of the changes and the current `createdAt`.
 
-6. **Make sure it's open in the browser.** If the viewer is already running it picks up the new
+7. **Make sure it's open in the browser.** If the viewer is already running it picks up the new
    revision automatically (it polls). If you're not sure it's running, start it in the
-   background so the user sees the result without running a separate command:
+   background so the user sees the result without running a separate command. Use the launcher
+   if it is on PATH, falling back to node with the resolved plugin root:
 
    ```bash
-   visual-planner --plan "<slug>" || node "${CLAUDE_PLUGIN_ROOT}/server/server.js" --plan "<slug>"
+   visual-planner --plan "<slug>" || node "<plugin-root>/server/server.js" --plan "<slug>"
    ```
 
    (Launching again when a server is already up is harmless — the port auto-increments if
    busy.) Run it as a background process.
 
-7. **Report the link.** Always include the URL in your reply:
+8. **Report the link.** Always include the URL in your reply:
    > Revision N+1 is ready and open in the browser: **http://localhost:<port>/?plan=<slug>**
    > Switch to the latest revision and use **Compare with previous** to see the diff.
 
